@@ -1,0 +1,95 @@
+#include "stdafx.h"
+#include <string>
+#include <math.h>
+using namespace std;
+
+class Molekula
+{
+	public:
+		Molekula()
+		{
+			name="name";
+			number=0;
+			index=0;
+			index_number = 0;
+			x=0;
+			y=0;
+			z=0;
+			teta=0;
+			fi=0;
+			r=0;
+			r_p = 0;
+			fi_p = 0;
+			teta_p = 0;
+			x_p = 0;
+			y_p = 0;
+			z_p = 0;
+			R_p = 0;
+			R_pa = 0;
+			radius=1;
+			sigm = 0;
+			eps = 0;
+			mass = 0;
+			k_des = 0;
+			E_bind = 0;
+			n_bind = 0;
+//			P_U0 = 0;
+			index_reaction = 0;
+			shift_iterator = 0;
+			shift_number = 0;
+			color = "Grey";
+			potential_centr = 0;
+			migr = 0;
+			energy_electrostatic_constant = 0;
+			migr_t_on = true;
+		}
+
+		~Molekula()
+		{
+		}
+
+		double newteta(double x, double y, double z)
+		{
+			teta = acos(z / pow((pow(x, 2.0) + pow(y, 2.0) + pow(z, 2.0)), 1 / 2.0));
+			return teta;
+		}
+
+		double newfi(double x, double y, double z)
+		{
+			fi=atan2(y,x);
+			return fi;
+		}
+
+		double newr(double x, double y, double z)
+		{
+			r = pow((pow(x, 2.0) + pow(y, 2.0) + pow(z, 2.0)), 1 / 2.0);
+			return r;
+		}
+
+		double newx(double r, double fi, double teta)
+		{
+			x = r * sin(teta)*cos(fi);
+			return x;
+		}
+
+		double newy(double r, double fi, double teta)
+		{
+			y = r * sin(teta)*sin(fi);
+			return y;
+		}
+
+		double newz(double r, double fi, double teta)
+		{
+			z = r * cos(teta);
+			return z;
+		}
+
+		vector<Point_migration> PT_migr, PT_migr_repeat;
+		vector<int> bind_number, bind_shift_number;
+		string name, color;
+		bool migr_t_on;
+		int index, number, index_reaction, index_number, shift_iterator, shift_number, n_bind, migr;
+		double teta, fi, r, nu, radius, x, y, z, sigm, eps, E_bind, k_des, r_p, fi_p, teta_p, x_p, y_p, z_p, R_p, R_pa, potential_centr, mass, energy_electrostatic_constant;// P_U0;
+};
+
+// vector<Molekula>  M;

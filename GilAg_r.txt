@@ -1,0 +1,922 @@
+// GilAg_r.cpp: определяет точку входа для консольного приложения.
+//
+
+#include "stdafx.h"
+#include <fstream>
+#include <istream>
+#include <string>
+#include <iostream>
+#include <conio.h>
+#include <string.h>
+//#pragma comment(linker, "/STACK:1000000000")
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <stdio.h> 
+#include <sstream>
+#include <ctime>
+#include <vector>
+#include <deque>
+#include <Algorithm>
+#include "environmental_conditions.h"
+//#include "Global_statistic.h"
+#include "bagg.h"
+#include "Coordinate_System.h"
+#include "Namespace.h"
+#include "Physical_constants.h"
+#include "Variaty_of_reaction.h"
+#include "Variety_of_molecules.h"
+#include "Potential.h"
+#include "Point_migration.h"
+#include "Molekula.h"
+#include "Period.h"
+#include "Isxod.h"
+#include "picture.h"
+#include "potencial.h"
+#include "migration.h"
+#include "step1.h"
+#include "step2.h"
+#include "zapis.h"
+#include "step3.h"
+//#include "Isxod.h"
+//#include "Global_statistic.h"
+#include "speed_calculation.h"
+#include "amorf_core.h"
+using namespace std;
+using namespace D;
+
+void concentration_in_dust(Variety_of_molecules *first_variant, int P, int G_charge, long double t, int n, double &Sm);
+void Concentration_in_dust(Variety_of_molecules *first_variant, int P, int G_charge, long double t, int n, ofstream &fout_c, ofstream &fout_q, double &Sm);
+void average_bias(Variety_of_molecules *first_variant, int P, long double t, int n, double &Sm_rp, double &Sm_ra, double &Sm_rpa, vector<Molekula>  &M, int f, double &SmA_rp, double &SmA_ra, double &SmA_rpa);
+void Average_bias(Variety_of_molecules *first_variant, int P, long double t, int n, ofstream &fout_rp, ofstream &fout_rpr, ofstream &fout_ra, ofstream &fout_rpa, ofstream &fout_rpaa, double &Sm_rp, double &Sm_ra, double &Sm_rpa, vector<Molekula>  &M, int f, double &SmA_rp, double &SmA_ra, double &SmA_rpa, ofstream &fouta_rp, ofstream &fouta_rpr, ofstream &fouta_ra, ofstream &fouta_rpa, ofstream &fouta_rpaa, ofstream &fouta_d, ofstream &fouta_s, ofstream *fout_X, ofstream &fout_XO);
+double dispersion(double P[], int X[], int f);
+int control_jk(int a);
+int control_ik(int a, int b, int c, int n_core);
+void fractal(vector<Molekula>  &M, double P, Vector3 C, ofstream &fractal_statistic_out);
+void fractal_cicle(vector<Molekula>& M, double FP, Vector3 C, ofstream& fractal_statistic_out, int NF);
+void sruct_regular(Variety_of_molecules first_variant[], vector<Molekula>  &M, int i, int j, int k, double r_min_G0, double side_hexagon, double distanse_layer);
+//extern string filed_name(string name);
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	int nu = 0, N_atoms_core;
+	double a0, tau = 0, r_min_G0;
+	long double t;
+	char nameX[10];
+	Variety_of_molecules first_variant[667]; 
+	vector<Molekula>  M; 
+	Molekula MM; 
+	Coordinate_System dekart; // система координат
+//	ifstream moleculyin, isxin, prdin;
+
+	vector<Period> Tau(0);
+
+
+	//	ofstream picture_out;
+	//	picture_out.open("picture.pov", ios::out);
+
+	bagout.open("bagg.txt", ios_base::app);
+	bagout << "Error" << "\t" << "t" << "\t" << "n" << "\t" << "migr" << "\t" << endl;
+	bagout.clear();
+	bagout.close();
+
+	isxod(first_variant, first_variant_r);
+
+
+
+	r_min_G0 = pow(2, 1 / 6.0) * first_variant[467].sigm; // растояние минимума потенциала для молекул ядра
+	double side_hexagon, distanse_layer;// s_cathet, b_cathet, distanse_layer; // graphite
+	side_hexagon = 1.41;
+//	s_cathet = side_hexagon / 2.0;
+//	b_cathet = side_hexagon * sin(M_PI / 3.0);
+	distanse_layer = 3.354;
+	// side size - 1.41A, side cathets - 0.705A, 1.2211A, distanse layer - 6.708/2A
+	int P = 0; // для генерации имён выводных файлов
+//	int d = 0;// количество уничтоженных молекул
+//	picture(M, P);
+	if (sp_or_sq == 0)
+	{
+		if (N_core < 10 && N_core > 0)
+		{
+			for (int i = -N_core; i <= N_core; i++) //сей цикл чуть умнее генерирует начальное ядро, но при большом радиусе сферическая форма утрачивается
+			{
+				for (int j = -N_core + control_jk(abs(i) - N_core / 2); j <= N_core - control_jk(abs(i) - N_core / 2); j++)
+				{
+					for (int k = -N_core + control_jk(abs(j) - N_core / 2) + control_ik(abs(i), N_core / 2, abs(j), N_core) + control_jk(abs(i) - N_core / 2); k <= N_core - control_jk(abs(j) - N_core / 2) - control_ik(abs(i), N_core / 2, abs(j), N_core) - control_jk(abs(i) - N_core / 2); k++)
+					{
+						sruct_regular(first_variant, M, i, j, k, r_min_G0, side_hexagon, distanse_layer);
+					}
+				}
+			}
+		}
+		else
+		{
+			for (int i = -N_core; i <= N_core; i++) //сей цикл генерирует сферическое начальное ядро при больших радиусах
+			{
+				for (int j = -N_core; j <= N_core; j++)
+				{
+					for (int k = -N_core; k <= N_core; k++)
+					{
+						if (i*i + j * j + k * k <= N_core * N_core)
+						{
+							sruct_regular(first_variant, M, i, j, k, r_min_G0, side_hexagon, distanse_layer);
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int i = -side_square; i <= side_square; i++)
+		{
+			for (int j = -side_square; j <= side_square; j++)
+			{
+				for (int k = -4; k <= 0; k++)
+				{
+					sruct_regular(first_variant, M, i, j, k, r_min_G0, side_hexagon, distanse_layer);
+				}
+			}
+		}
+	}
+
+	N_step_P_A.open(N_st_P_A, ios_base::trunc);
+	N_step_P_A << "N step" << "\t" << "Track length" << endl;
+	N_step_P_A.clear();
+	N_step_P_A.close();
+
+	picture(M, P);
+	generate_amorf_core(M, N_atoms_amorf_core);
+	N_atoms_core = f;
+	picture(M, P);
+	double S_grain, l_grain;
+	switch (regular_struct_type)
+	{
+	case 0:
+		l_grain = r_min_G0;
+		break;
+
+	case 1:
+		l_grain = 2 * side_hexagon;
+		break;
+
+	default:
+		break;
+	}
+	if (sp_or_sq == 0)
+	{
+		if (N_atoms_amorf_core > 0)
+		{
+			S_grain = M_PI * pow((N_core * l_grain + pow(N_atoms_amorf_core, 1/2.15)) * pow(10.0, -8.0), 2.0); // площадь сечения пылинки
+		}
+		else
+		{
+			S_grain = M_PI * pow(N_core * l_grain * pow(10.0, -8.0), 2.0); // площадь сечения пылинки
+		}
+	}
+	else
+	{
+		S_grain = pow(side_square * l_grain * pow(10.0, -8.0), 2.0);
+	}
+	
+	speed_calculation(S_grain, first_variant, first_variant_r);
+	// 5233 - 5392 desorb //  // 5038 - 5232 freeze //
+
+	cout << "There is a record fractal statistic in the file..." << endl;
+	ofstream fractal_statistic_out;
+	string fractal_statistic, FF;
+	Vector3 C(0, 0, 0);
+	double FP;
+	ostringstream FFF;
+	int NF;
+	FFF << N_atoms_amorf_core;
+	FF = FFF.str();
+	fractal_statistic.append("Fractal_statistic_");
+	fractal_statistic.append(FF);
+	fractal_statistic.append(".txt");
+	fractal_statistic_out.open(fractal_statistic, ios_base::trunc);
+	fractal_statistic_out << "volue" << "\t" << "angstrem" << "\t" << "sigm_H" << "\t" << "radius_species" << "\t" << "full filling" << "\t" << "fractal_dimension" << endl;
+
+	NF = int(((pow(S_grain / M_PI, 0.5) / pow(10, -8.0)) + 0.5) * 8);
+
+	C.x = 0;
+	C.y = 0;
+	C.z = 0;
+	fractal_cicle(M, FP, C, fractal_statistic_out, NF);
+
+	C.x = 1;
+	C.y = 0;
+	C.z = 0;
+	fractal_cicle(M, FP, C, fractal_statistic_out, NF);
+
+	C.x = -1;
+	C.y = 0;
+	C.z = 0;
+	fractal_cicle(M, FP, C, fractal_statistic_out, NF);
+
+	C.x = 0;
+	C.y = 1;
+	C.z = 0;
+	fractal_cicle(M, FP, C, fractal_statistic_out, NF);
+
+	C.x = 0;
+	C.y = -1;
+	C.z = 0;
+	fractal_cicle(M, FP, C, fractal_statistic_out, NF);
+
+	C.x = 0;
+	C.y = 0;
+	C.z = 1;
+	fractal_cicle(M, FP, C, fractal_statistic_out, NF);
+
+	C.x = 0;
+	C.y = 0;
+	C.z = -1;
+	fractal_cicle(M, FP, C, fractal_statistic_out, NF);
+
+	fractal_statistic_out.clear();
+	fractal_statistic_out.close();
+
+	srand(time(0));
+	picture_color_bind(M);
+	picture_color_bind_350(M);
+	picture_color_bind_350_500(M);
+	picture_color_bind_500_700(M);
+	picture_color_bind_700(M);
+
+	string H2des;
+	ofstream h2d_out;
+	ostringstream PPP;
+	string concentration, PP;
+/*
+	PPP << T_d;
+	PP = PPP.str();
+	H2des.append("H2des_");
+	H2des.append(PP);
+	H2des.append(".txt");
+*/
+	H2des = filed_name("H2des_");
+	h2d_out.open(H2des);
+
+	h2d_out << "H_accr" << "\t" << "H_on" << "\t" << "H_des" << "\t" << "H2_des" << "\t" << "t" << "\t" << "n" << "\t" << "migr" << "\t" << "number_migr_off" << "\t" << "number_migr_error" << "\t" << "number_migr_temp" << "\t" << "number_migr_kvant" << "\t" << "des_H2_acc" << "\t" << "des_H2_hot_acc" << "\t" << "des_H2_mt" << "\t" << "des_H2_kv" << endl;
+
+
+	
+
+		first_variant[562].d
+	int fdm = 0;
+	ofstream n_bindout, n_bindout_con;
+	n_bindout.open("n_bind.txt");
+	n_bindout_con.open("n_bind_continue.txt");
+
+	for (int i = 0; i < 12; i++)
+	{
+		n_bindout << i << "\t";
+		n_bindout_con << i << "\t";
+	}
+
+	n_bindout << "t" << "\t" << "n" << "\t" << "migr" << "\t" << endl;
+	n_bindout_con << "t" << "\t" << "n" << "\t" << "migr" << "\t" << endl;
+	int N_BIND[12] = { NULL };
+
+	string Poten_K, PMZ, N_st_P;
+	Poten_K = filed_name("Potencial_K_");
+	PMZ = filed_name("Point_migration_size_");
+	N_st_P = filed_name("N_step_P_");
+
+	P_U_out.open("Potencial_K.txt", ios_base::trunc);
+	P_m_size.open("Point_migration_size.txt", ios_base::trunc);
+	P_out.open(P_K, ios_base::trunc);
+	P_U_out.open(Poten_K, ios_base::trunc);
+	P_UC_out.open(Poten_KC, ios_base::trunc);
+	P_MT_U_out.open(PMT, ios_base::trunc);
+	P_MTRPK_U_out.open(PMTRPK, ios_base::trunc);
+	P_m_size.open(PMZ, ios_base::trunc);
+	P_out.clear();
+	P_out.close();
+	P_U_out.clear();
+	P_U_out.close();
+	P_UC_out.clear();
+	P_UC_out.close();
+	P_MT_U_out.clear();
+	P_MT_U_out.close();
+	P_MTRPK_U_out.clear();
+	P_MTRPK_U_out.close();
+	P_m_size.clear();
+	P_m_size.close();
+
+	
+//	N_step_P.open("N_step_P.txt", ios_base::trunc);
+	N_step_P.open(N_st_P, ios_base::trunc);
+	N_step_P << "N step" << "\t" << "Track length" << endl;
+	N_step_P.clear();
+	N_step_P.close();
+
+
+//	ofstream P_U;
+//	P_U.open("Potencial_migr_K.txt");
+	
+
+	ofstream P_V;
+	P_V.open("R_V.txt");
+
+	string holes;
+	ofstream holes_out;
+	int h = 0; // генерировать имена для ям
+	
+
+	do //непосредсвенное действие
+	{
+		int N_BIND_continue[12] = { NULL };
+		a0=step1(X, first_variant_r, first_variant);
+		step2(X, first_variant_r, a0, tau, nu);
+		step3(Tau[0].tau, nu, first_variant, M, MM, first_variant_r, Tau);
+		//		proverka_oblasty(dekart);
+		cout << "n= " << n << "\t" << "t= " << t << "\t" << "accr = " << f - N_atoms_core << "\t" << "des = " << d << "\t" << "migr = " << m << "\t" << "des_H2 = " << h2d << "\t" << "number_migr_off = " << migr_off << "\t" << "migr_error = " << migr_error << "\t" << "migr_temp = " << migr_t << "\t" << "migr_kvant = " << migr_kv << "\t" << "des_H2_acc = " << des_H2_acc << "\t" << "des_H2_hot_acc = " << des_H2_hot_acc << "\t" << "des_H2_mt = " << des_H2_mt << "\t" << "des_H2_kv = " << des_H2_kv << endl;
+
+		if (R_V.size() > 0)
+		{
+			P_V << R_V[m - 1] << endl;
+		}
+
+		for (int i = 740; i < M.size() - 1; i++)
+		{
+			if (M[i].bind_shift_number.size() < 12)
+			{
+				N_BIND[M[i].bind_shift_number.size()]++;
+				N_BIND_continue[M[i].bind_shift_number.size()]++;
+			}
+			else
+			{
+				N_BIND[11]++;
+				N_BIND_continue[11]++;
+			}
+
+			P_U_out << M[i].potential_centr / kB << endl;
+			P_m_size << M[i].PT_migr.size() << endl;
+
+			for (int j = 0; j < M[i].PT_migr.size(); j++)
+			{
+				P_U << M[i].PT_migr[j].P_migr.U / kB << endl;
+			}
+			
+		}
+
+		for (int i = 0; i < 12; i++)
+		{
+			n_bindout << N_BIND[i] << "\t";
+			n_bindout_con << N_BIND_continue[i] << "\t";
+		}
+
+		n_bindout << t << "\t" << n << "\t" << m << "\t" << endl;
+		n_bindout_con << t << "\t" << n << "\t" << m << "\t" << endl;
+*/
+		if ((f - 739 + d) % 50 == 0 && (f - 739 + d) != fdm)
+
+		if (n % 500 == 0)
+		{
+			cout << "There is a record in the file..." << endl;
+			h2d_out << first_variant[562].f << "\t" << first_variant[562].f - first_variant[562].d - h2d * 2 << "\t" << first_variant[562].d << "\t" << h2d << "\t" << t << "\t" << n << "\t" << m << "\t" << migr_off << "\t" << migr_error << "\t" << migr_t << "\t" << migr_kv << "\t" << des_H2_acc << "\t" << des_H2_hot_acc << "\t" << des_H2_mt << "\t" << des_H2_kv << endl;
+
+			h++;
+			holes = filed_name("Holes_", h);
+			holes_out.open(holes);
+
+			holes_out << "Number" << "\t" << "Potencial_holes" << "\t" << "Quantity_hits" << "\t" << "Radius_to_centr" << endl;
+
+			for (int i = 0; i < Holes.size(); i++)
+			{
+				holes_out << i << "\t" << Holes[i].P_migr.U / kB << "\t" << Holes[i].repeat_number << "\t" << Holes[i].P_migr.r << endl;
+			}
+
+			holes_out.clear();
+			holes_out.close();			
+		}
+
+		if (n % 1000 == 0)
+		{
+//			fdm = f - 739 + d;
+
+			P++;
+			picture(M, P);
+			picture_x(M, P);
+			picture_3x(M, P);
+			picture_y(M, P);
+			picture_3y(M, P);
+			picture_z(M, P);
+			picture_3z(M, P);
+			concentration_in_dust(first_variant, P, G_charge, t, n, Sm);
+			Concentration_in_dust(first_variant, P, G_charge, t, n, fout_c, fout_q, Sm);
+			average_bias(first_variant, P, t, n, Sm_rp, Sm_ra, Sm_rpa, M, f, SmA_rp, SmA_ra, SmA_rpa);
+			Average_bias(first_variant, P, t, n, fout_rp, fout_rpr, fout_ra, fout_rpa, fout_rpaa, Sm_rp, Sm_ra, Sm_rpa, M, f, SmA_rp, SmA_ra, SmA_rpa, fouta_rp, fouta_rpr, fouta_ra, fouta_rpa, fouta_rpaa, fouta_d, fouta_s, fout_X, fout_XO);
+
+			h2d_out << first_variant[562].f << "\t" << first_variant[562].f - first_variant[562].d - h2d * 2 << "\t" << first_variant[562].d << "\t" << h2d << "\t" << t << "\t" << n << "\t" << m << "\t" << migr_off << "\t" << migr_error << "\t"  << migr_t << "\t" << migr_kv << "\t" << des_H2_acc << "\t" << des_H2_hot_acc << "\t" << des_H2_mt << "\t" << des_H2_kv << endl;
+
+			Sm = 0;
+			Sm_rp = 0;
+			Sm_ra = 0;
+			Sm_rpa = 0;
+			SmA_rp = 0;
+			SmA_ra = 0;
+			SmA_rpa = 0;
+		}
+
+	} while (true); //while (t<4.351968*pow(10.0, 17.0));
+
+
+	picture(M, P);
+	picture_x(M, P);
+	picture_3x(M, P);
+	picture_y(M, P);
+	picture_3y(M, P);
+	picture_z(M, P);
+	picture_3z(M, P);
+	concentration_in_dust(first_variant, P, G_charge, t, n, Sm);
+	Concentration_in_dust(first_variant, P, G_charge, t, n, fout_c, fout_q, Sm);
+	average_bias(first_variant, P, t, n, Sm_rp, Sm_ra, Sm_rpa, M, f, SmA_rp, SmA_ra, SmA_rpa);
+	Average_bias(first_variant, P, t, n, fout_rp, fout_rpr, fout_ra, fout_rpa, fout_rpaa, Sm_rp, Sm_ra, Sm_rpa, M, f, SmA_rp, SmA_ra, SmA_rpa, fouta_rp, fouta_rpr, fouta_ra, fouta_rpa, fouta_rpaa, fouta_d, fouta_s, fout_X, fout_XO);
+
+	fout_c.clear();
+	fout_c.close();
+	fout_q.clear();
+	fout_q.close();
+	fout_rp.clear();
+	fout_rp.close();
+	fout_rpr.clear();
+	fout_rpr.close();
+	fout_ra.clear();
+	fout_ra.close();
+	fout_rpa.clear();
+	fout_rpa.close();
+	fout_rpaa.clear();
+	fout_rpaa.close();
+	fouta_rp.clear();
+	fouta_rp.close();
+	fouta_rpr.clear();
+	fouta_rpr.close();
+	fouta_ra.clear();
+	fouta_ra.close();
+	fouta_rpa.clear();
+	fouta_rpa.close();
+	fouta_rpaa.clear();
+	fouta_rpaa.close();
+	fouta_d.clear();
+	fouta_d.close();
+	fouta_s.clear();
+	fouta_s.close();
+
+	for (int i = 0; i < O.size(); i++)
+	{
+		fout_X[i].clear();
+		fout_X[i].close();
+	}
+
+	fout_XO.clear();
+	fout_XO.close();
+
+	h2d_out.clear();
+	h2d_out.close();
+
+	//n_bindout.clear();
+	//n_bindout.close();
+
+//	P_U.clear();
+//	P_U.close();
+//	P_U_out.clear();
+//	P_U_out.close();
+
+	//	for(i=0;i<667;i++) //фигня для проверки
+	//	{
+	//		cout << first_variant[i].quantiti <<endl;
+	//	}
+
+	//	cout << endl << endl << t << endl << endl << 1/t <<endl << endl << t*pow(10.0, 9.0) << endl << endl << endl;
+	cout << endl << endl << t << endl << endl;
+	cout << n << endl;
+	system("pause");
+	return 0;
+}
+
+
+void sruct_regular(Variety_of_molecules first_variant[], vector<Molekula>  &M, int i, int j, int k, double r_min_G0, double side_hexagon, double distanse_layer)
+{
+	switch (regular_struct_type)
+	{
+	case 0:
+		if (i == 0 && j == 0 && k == 0)
+		{
+			zapis(first_variant, M, 0, 0, 0, 467, 0, 0, 0, 0, 0, 0, 0, 0);
+		}
+		else
+		{
+			zapis(first_variant, M, pow((pow(i*r_min_G0, 2.0) + pow(j*r_min_G0, 2.0) + pow(k*r_min_G0, 2.0)), 1 / 2.0), atan2(double(j*r_min_G0), double(i*r_min_G0)), acos(k*r_min_G0 / pow((pow(i*r_min_G0, 2.0) + pow(j*r_min_G0, 2.0) + pow(k*r_min_G0, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+		}
+		break;
+	case 1:	
+		if (j == -side_square || j == -N_core)
+		{
+			for (int angle = 0; angle < 6; angle++)
+			{
+				zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * cos(angle * M_PI / 3.0), 2.0) + pow(j * 2 * side_hexagon * cos(M_PI / 6.0) + (abs(k) % 2) * side_hexagon + side_hexagon * sin(angle * M_PI / 3.0), 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 2 * side_hexagon * cos(M_PI / 6.0) + (abs(k) % 2) * side_hexagon + side_hexagon * sin(angle * M_PI / 3.0)), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * cos(angle * M_PI / 3.0))), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * cos(angle * M_PI / 3.0), 2.0) + pow(j * 2 * side_hexagon * cos(M_PI / 6.0) + (abs(k) % 2) * side_hexagon + side_hexagon * sin(angle * M_PI / 3.0), 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+			}
+		}
+		else
+		{
+			for (int angle = 0; angle < 4; angle++)
+			{
+				zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * cos(angle * M_PI / 3.0), 2.0) + pow(j * 2 * side_hexagon * cos(M_PI / 6.0) + (abs(k) % 2) * side_hexagon + side_hexagon * sin(angle * M_PI / 3.0), 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 2 * side_hexagon * cos(M_PI / 6.0) + (abs(k) % 2) * side_hexagon + side_hexagon * sin(angle * M_PI / 3.0)), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * cos(angle * M_PI / 3.0))), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * cos(angle * M_PI / 3.0), 2.0) + pow(j * 2 * side_hexagon * cos(M_PI / 6.0) + (abs(k) % 2) * side_hexagon + side_hexagon * sin(angle * M_PI / 3.0), 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+			}
+		}		
+		break;
+	default:
+		if (i == 0 && j == 0 && k == 0)
+		{
+			zapis(first_variant, M, 0, 0, 0, 467, 0, 0, 0, 0, 0, 0, 0, 0);
+		}
+		else
+		{
+			zapis(first_variant, M, pow((pow(i*r_min_G0, 2.0) + pow(j*r_min_G0, 2.0) + pow(k*r_min_G0, 2.0)), 1 / 2.0), atan2(double(j*r_min_G0), double(i*r_min_G0)), acos(k*r_min_G0 / pow((pow(i*r_min_G0, 2.0) + pow(j*r_min_G0, 2.0) + pow(k*r_min_G0, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+		}
+		break;
+	}
+}
+
+
+int control_jk(int a)
+{
+	if (a > 0)
+	{
+		return a;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+int control_ik(int a, int b, int c, int n_core)
+{
+	if (a == b && c == b || a == b && c == n_core || a == n_core && c == b)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void concentration_in_dust(Variety_of_molecules *first_variant, int P, int G_charge, long double t, int n, double &Sm)
+{
+	ofstream fout;
+	ostringstream PPP;
+	string concentration, PP;
+	PPP << P;
+	PP = PPP.str();
+	concentration.append("adc_");
+	concentration.append(PP);
+	concentration.append("_concentration_in_dust.txt");
+	fout.open(concentration, ios::out);
+
+	int FV = 667;
+	char nameX[100];
+
+	for (int i = 0; i < FV; i++)
+	{
+		strcpy(nameX, first_variant[i].name.c_str());
+		if (first_variant[i].o == 1 && nameX[0] == 'g')
+		{
+			Sm = Sm + first_variant[i].quantiti;
+		}
+	}
+	for (int i = 0; i < FV; i++)
+	{
+		strcpy(nameX, first_variant[i].name.c_str());
+		if (first_variant[i].quantiti != 0 && nameX[0] == 'g')
+		{
+			first_variant[i].concentration_in_dust = (first_variant[i].quantiti / Sm) * 100.0;
+			fout << first_variant[i].name << "\t" << first_variant[i].concentration_in_dust << "%" << "\t" << first_variant[i].quantiti << endl;
+		}
+	}
+	fout << endl << endl << "Summ_quantiti= " << Sm << endl;
+	fout << endl << endl << "G_charge= " << G_charge << endl;
+	fout << endl << endl << "t= " << t << endl;
+	fout << endl << endl << "n= " << n << endl;
+	fout.clear();
+	fout.close();
+}
+
+void Concentration_in_dust(Variety_of_molecules *first_variant, int P, int G_charge, long double t, int n, ofstream &fout_c, ofstream &fout_q, double &Sm)
+{
+	int FV = 667;
+	char nameX[100];
+
+	for (int i = 0; i < FV; i++)
+	{
+		strcpy(nameX, first_variant[i].name.c_str());
+		if (nameX[0] == 'g' && first_variant[i].o == 1)
+		{
+			fout_c << first_variant[i].concentration_in_dust << "\t";
+			fout_q << first_variant[i].quantiti << "\t";
+		}
+	}
+	fout_c << Sm << "\t";
+	fout_c << G_charge << "\t";
+	fout_c << t << "\t";
+	fout_c << n << endl;
+	fout_q << Sm << "\t";
+	fout_q << G_charge << "\t";
+	fout_q << t << "\t";
+	fout_q << n << endl;
+}
+
+
+void average_bias(Variety_of_molecules *first_variant, int P, long double t, int n, double &Sm_rp, double &Sm_ra, double &Sm_rpa, vector<Molekula>  &M, int f, double &SmA_rp, double &SmA_ra, double &SmA_rpa)
+{
+	ofstream fout, fouta;
+	ostringstream PPP, aPPP;
+	string concentration, PP, aconcentration, aPP;
+	PPP << P;
+	PP = PPP.str();
+	concentration.append("ada_");
+	concentration.append(PP);
+	concentration.append("_average_bias.txt");
+	fout.open(concentration, ios::out);
+
+	aPPP << P;
+	aPP = aPPP.str();
+	aconcentration.append("Aada_");
+	aconcentration.append(aPP);
+	aconcentration.append("_average_bias.txt");
+	fouta.open(aconcentration, ios::out);
+
+	int FV = 667;
+	char nameX[100];
+	double Sm_m_ra = 0, Sm_m_rp = 0, Sm_m_rpa = 0;
+	for (int i = 0; i < FV; i++)
+	{
+		strcpy(nameX, first_variant[i].name.c_str());
+		if (first_variant[i].o == 1 && nameX[0] == 'g')
+		{	
+			if (first_variant[i].quantiti != 0)
+			{
+				for (int j = 0; j < first_variant[i].number.size(); j++)
+				{
+					Sm_m_rp = Sm_m_rp + M[first_variant[i].shift_number[j]].R_p;
+					Sm_m_ra = Sm_m_ra + M[first_variant[i].shift_number[j]].r;
+					Sm_m_rpa = Sm_m_rpa + M[first_variant[i].shift_number[j]].R_pa;
+				}
+				first_variant[i].R_p = Sm_m_rp / first_variant[i].number.size();
+				first_variant[i].R_average = Sm_m_ra / first_variant[i].number.size();
+				first_variant[i].R_p_average = Sm_m_rpa / first_variant[i].number.size();
+				Sm_rp = Sm_rp + Sm_m_rp;
+				Sm_ra = Sm_ra + Sm_m_ra;
+				Sm_rpa = Sm_rpa + Sm_m_rpa;
+				SmA_rp = SmA_rp + first_variant[i].R_p_f;
+				SmA_ra = SmA_ra + first_variant[i].R_f_average;
+				SmA_rpa = SmA_rpa + first_variant[i].R_p_f_average;
+				fout << first_variant[i].name << "\t" << first_variant[i].R_p << "\t" << first_variant[i].R_p / first_variant[562].radius << "\t" << first_variant[i].R_average << "\t" << first_variant[i].R_p_average << "\t" << first_variant[i].R_p_average - first_variant[i].R_average << endl;
+				fouta << first_variant[i].name << "\t" << first_variant[i].R_p_f / first_variant[i].f << "\t" << first_variant[i].R_p_f / first_variant[i].f / first_variant[562].radius << "\t" << first_variant[i].R_f_average / first_variant[i].f << "\t" << first_variant[i].R_p_f_average / first_variant[i].f << "\t" << first_variant[i].R_p_f_average / first_variant[i].f - first_variant[i].R_f_average / first_variant[i].f << "\t" << dispersion(first_variant[i].P, first_variant[i].X, first_variant[i].f) << "\t" << pow(dispersion(first_variant[i].P, first_variant[i].X, first_variant[i].f), 1 / 2.0) << "\t" << first_variant[i].f << endl;
+			}
+			Sm_m_rp = 0;
+			Sm_m_ra = 0;
+			Sm_m_rpa = 0;
+		}
+	}
+	fout << endl << endl << "Average_bias = " << Sm_rp / (M.size() - 1 - 739) << endl;
+	fout << endl << "Average_bias_radius = " << Sm_rp / first_variant[562].radius / (M.size() - 1 - 739) << endl;
+	fout << endl << "Average_radius = " << Sm_ra / (M.size() - 1 - 739) << endl;
+	fout << endl << "Average_primordial_radius = " << Sm_rpa / (M.size() - 1 - 739) << endl;
+	fout << endl << "Average_primordial_radius - Average_radius = " << Sm_rpa / (M.size() - 1 - 739) - Sm_ra / (M.size() - 1 - 739) << endl;
+	fout << endl << "Approximate thickness = " << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 << endl;
+	fout << endl << "Approximate_radius = " << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 + 19.0464001474032 << endl;
+	fout << endl << "t= " << t << endl;
+	fout << endl << "n= " << n << endl;
+
+	fouta << endl << endl << "Average_bias = " << SmA_rp / (f - 739 ) << endl;
+	fouta << endl << "Average_bias_radius = " << SmA_rp / first_variant[562].radius / (f - 739 ) << endl;
+	fouta << endl << "Average_radius = " << SmA_ra / (f - 739 ) << endl;
+	fouta << endl << "Average_primordial_radius = " << SmA_rpa / (f - 739 ) << endl;
+	fouta << endl << "Average_primordial_radius - Average_radius = " << SmA_rpa / (f - 739 ) - SmA_ra / (f - 739 ) << endl;
+	fouta << endl << "Approximate thickness = " << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 << endl;
+	fouta << endl << "Approximate_radius = " << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 + 19.0464001474032 << endl;
+	fouta << endl << "Dispersion = " << dispersion(Pp, X, f - 739 ) << endl;
+	fouta << endl << "SKO = " << pow(dispersion(Pp, X, f - 739 ),1/2.0) << endl;
+	fouta << endl << "Amount of adhesion = " << f - 739  << endl;
+	fouta << endl << "t= " << t << endl;
+	fouta << endl << "n= " << n << endl;
+
+	fout.clear();
+	fout.close();
+	fouta.clear();
+	fouta.close();
+}
+
+void Average_bias(Variety_of_molecules *first_variant, int P, long double t, int n, ofstream &fout_rp, ofstream &fout_rpr, ofstream &fout_ra, ofstream &fout_rpa, ofstream &fout_rpaa, double &Sm_rp, double &Sm_ra, double &Sm_rpa, vector<Molekula>  &M, int f, double &SmA_rp, double &SmA_ra, double &SmA_rpa, ofstream &fouta_rp, ofstream &fouta_rpr, ofstream &fouta_ra, ofstream &fouta_rpa, ofstream &fouta_rpaa, ofstream &fouta_d, ofstream &fouta_s, ofstream *fout_X, ofstream &fout_XO)
+{
+	int FV = 667, ii = 0;
+	char nameX[100];
+
+	for (int i = 0; i < FV; i++)
+	{
+		strcpy(nameX, first_variant[i].name.c_str());
+		if (nameX[0] == 'g' && first_variant[i].o == 1)
+		{
+			fout_rp << first_variant[i].R_p << "\t";
+			fout_rpr << first_variant[i].R_p / first_variant[562].radius << "\t";
+			fout_ra << first_variant[i].R_average << "\t";
+			fout_rpa << first_variant[i].R_p_average << "\t";
+			fout_rpaa << first_variant[i].R_p_average - first_variant[i].R_average << "\t";
+
+			fouta_rp << first_variant[i].R_p_f / first_variant[i].f << "\t";
+			fouta_rpr << first_variant[i].R_p_f / first_variant[i].f / first_variant[562].radius << "\t";
+			fouta_ra << first_variant[i].R_f_average / first_variant[i].f << "\t";
+			fouta_rpa << first_variant[i].R_p_f_average / first_variant[i].f << "\t";
+			fouta_rpaa << first_variant[i].R_p_f_average / first_variant[i].f - first_variant[i].R_f_average / first_variant[i].f << "\t";
+			fouta_d << dispersion(first_variant[i].P, first_variant[i].X, first_variant[i].f) << "\t";
+			fouta_s << pow(dispersion(first_variant[i].P, first_variant[i].X, first_variant[i].f),1/2.0) << "\t";
+
+			for (int j = 0; j < 26; j++)
+			{
+				fout_X[ii] << first_variant[i].X[j] << "\t";
+			}
+			fout_X[ii] << "\t" << first_variant[i].f << "\t" << t << "\t " << n << endl;
+			ii++;
+		}
+	}
+	fout_rp << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 << "\t" << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << t <<  "\t " << n << endl;
+	fout_rpr << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 << "\t" << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << t << "\t " << n << endl;
+	fout_ra << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 << "\t" << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << t << "\t " << n << endl;
+	fout_rpa << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 << "\t" << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << t << "\t " << n << endl;
+	fout_rpaa << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 << "\t" << (Sm_ra / (M.size() - 1 - 739) - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << t << "\t " << n << endl;
+
+	fouta_rp << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 << "\t" << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << f - 739  << "\t" << t << "\t " << n << endl;
+	fouta_rpr << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 << "\t" << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << f - 739  << "\t" << t << "\t " << n << endl;
+	fouta_ra << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 << "\t" << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << f - 739  << "\t" << t << "\t " << n << endl;
+	fouta_rpa << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 << "\t" << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << f - 739  << "\t" << t << "\t " << n << endl;
+	fouta_rpaa << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 << "\t" << (SmA_ra / (f - 739 ) - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << f - 739  << "\t" << t << "\t " << n << endl;
+	fouta_d << dispersion(Pp, X, f - 739 ) << "\t" << pow(dispersion(Pp, X, f - 739 ), 1 / 2.0) << "\t" << f - 739  << "\t" << t << "\t " << n << endl;
+	fouta_s << dispersion(Pp, X, f - 739 ) << "\t" << pow(dispersion(Pp, X, f - 739 ), 1 / 2.0) << "\t" << f - 739  << "\t" << t << "\t " << n << endl;
+
+
+	for (int j = 0; j < 26; j++)
+	{
+		fout_XO << X[j] << "\t";
+	}
+
+	fout_XO << "\t" << f - 739  << "\t" << t << "\t " << n << endl;
+
+}
+
+
+double dispersion(double P[], int X[], int f)
+{
+	if (f == 0)
+	{
+		return 0;
+	}
+	double M = 0, D = 0;
+	for (int i = 0; i < 26; i++)
+	{
+		P[i] = X[i] / double(f);
+		M = M + P[i] * X[i];
+		D = D + P[i] * pow(X[i] - M, 2.0);
+	}
+	return D;
+}
+
+void fractal_cicle(vector<Molekula>& M, double FP, Vector3 C, ofstream& fractal_statistic_out, int NF)
+{
+	for (int i = 1; i < NF; i++)
+	{
+		FP = i;
+		fractal(M, FP, C, fractal_statistic_out);
+//		FP = 2.12 * 1.25 * pow(2, i - 1);
+//		fractal(M, FP, C, fractal_statistic_out);
+	}
+
+	fractal_statistic_out << endl << endl;
+}
+
+void fractal(vector<Molekula>  &M, double P, Vector3 C, ofstream &fractal_statistic_out)
+{
+	double Pa, Ps, Pr;
+	int k = 0;
+	Pa = round(P * 100) / 100;
+	Ps = round((P / 2.12) * 100) / 100;
+	Pr = round((P / 1.7) * 100) / 100;
+	for (int i = 0; i < M.size(); i++)
+	{
+		if (pow((pow((C.x - M[i].x), 2.0) + pow((C.y - M[i].y), 2.0) + pow((C.z - M[i].z), 2.0)), 1 / 2.0) <= P)
+		{
+			k++;
+		}
+	}
+	fractal_statistic_out << k << "\t" << Pa << "\t" << Ps << "\t" << Pr << "\t" << ((4.0 / 3.0) * M_PI * pow(Pa, 3.0)) / ((4.0 / 3.0) * M_PI * pow(1.7, 3.0)) << "\t" << k / floor(((4.0 / 3.0) * M_PI * pow(Pa, 3.0)) / ((4.0 / 3.0) * M_PI * pow(1.7, 3.0))) << endl;
+
+}
+
+/*
+void average_bias(Variety_of_molecules *first_variant, int P, long double t, int n, double &Sm_rp, double &Sm_ra, double &Sm_rpa, int &k_ar)
+{
+	ofstream fout;
+	ostringstream PPP;
+	string concentration, PP;
+	PPP << P;
+	PP = PPP.str();
+	concentration.append("ada_");
+	concentration.append(PP);
+	concentration.append("_average_potencial.txt");
+	fout.open(concentration, ios::out);
+
+	int FV = 667;
+	char nameX[100];
+	k_ar = 0;
+
+	for (int i = 0; i < FV; i++)
+	{
+		strcpy(nameX, first_variant[i].name.c_str());
+		if (first_variant[i].o == 1 && nameX[0] == 'g')
+		{
+			if (first_variant[i].quantiti != 0)
+			{
+				k_ar++;
+			}
+			Sm_rp = Sm_rp + first_variant[i].R_p;
+			Sm_ra = Sm_ra + first_variant[i].R_average;
+			Sm_rpa = Sm_rpa + first_variant[i].R_p_average;
+			fout << first_variant[i].name << "\t" << first_variant[i].R_p << "\t" << first_variant[i].R_p / first_variant[562].radius << "\t" << first_variant[i].R_average << "\t" << first_variant[i].R_p_average << "\t" << first_variant[i].R_p_average - first_variant[i].R_average << endl;
+		}
+	}
+	fout << endl << endl << "Average_bias = " << Sm_rp / k_ar << endl;
+	fout << endl << "Average_bias_radius = " << Sm_rp / first_variant[562].radius / k_ar << endl;
+	fout << endl << "Average_radius = " << Sm_ra / k_ar << endl;
+	fout << endl << "Average_primordial_radius = " << Sm_rpa / k_ar << endl;
+	fout << endl << "Average_primordial_radius - Average_radius = " << Sm_rpa / k_ar - Sm_ra / k_ar << endl;
+	fout << endl << "Approximate thickness = " << (Sm_ra / k_ar - 19.0464001474032) * 2.0 << endl;
+	fout << endl << "Approximate_radius = " << (Sm_ra / k_ar - 19.0464001474032) * 2.0 + 19.0464001474032 << endl;
+	fout << endl << "t= " << t << endl;
+	fout << endl << "n= " << n << endl;
+	fout.clear();
+	fout.close();
+}
+
+void Average_bias(Variety_of_molecules *first_variant, int P, long double t, int n, ofstream &fout_rp, ofstream &fout_rpr, ofstream &fout_ra, ofstream &fout_rpa, ofstream &fout_rpaa, double &Sm_rp, double &Sm_ra, double &Sm_rpa, int &k_ar)
+{
+	int FV = 667;
+	char nameX[100];
+
+	for (int i = 0; i < FV; i++)
+	{
+		strcpy(nameX, first_variant[i].name.c_str());
+		if (nameX[0] == 'g' && first_variant[i].o == 1)
+		{
+			fout_rp << first_variant[i].R_p << "\t";
+			fout_rpr << first_variant[i].R_p / first_variant[562].radius << "\t";
+			fout_ra << first_variant[i].R_average << "\t";
+			fout_rpa << first_variant[i].R_p_average << "\t";
+			fout_rpaa << first_variant[i].R_p_average - first_variant[i].R_average << "\t";
+		}
+	}
+	fout_rp << (Sm_ra / k_ar - 19.0464001474032) * 2.0 << "\t" << (Sm_ra / k_ar - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << "t= " << "\t" << t << "n= " << n << endl;
+	fout_rpr << (Sm_ra / k_ar - 19.0464001474032) * 2.0 << "\t" << (Sm_ra / k_ar - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << "t= " << "\t" << t << "n= " << n << endl;
+	fout_ra << (Sm_ra / k_ar - 19.0464001474032) * 2.0 << "\t" << (Sm_ra / k_ar - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << "t= " << "\t" << t << "n= " << n << endl;
+	fout_rpa << (Sm_ra / k_ar - 19.0464001474032) * 2.0 << "\t" << (Sm_ra / k_ar - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << "t= " << "\t" << t << "n= " << n << endl;
+	fout_rpaa << (Sm_ra / k_ar - 19.0464001474032) * 2.0 << "\t" << (Sm_ra / k_ar - 19.0464001474032) * 2.0 + 19.0464001474032 << "\t" << "t= " << "\t" << t << "n= " << n << endl;
+
+}
+*/
+
+//				for (int k = -N_core + control_jk(abs(j) - d_k); k <= N_core - control_jk(abs(j) - d_k); k++)
+//				for (int k = -N_core + control_jk(abs(j) - d_k) + control_ik(abs(i), d_k, abs(j), N_core); k <= N_core - control_jk(abs(j) - d_k) - control_ik(abs(i), d_k, abs(j), N_core); k++)
+
+
+/*
+		if (i == 0 && j == 0 && k == 0)
+		{
+			zapis(first_variant, M, 0, 0, 0, 467, 0, 0, 0, 0, 0, 0, 0, 0);
+
+			zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet)), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+
+			zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet)), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+
+			zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon)), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+
+			zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon)), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+		}
+		else
+		{
+			for (int angle = 0; angle < 6; angle++)
+			{
+				zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * cos(angle * M_PI/3.0), 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * sin(angle * M_PI / 3.0), 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * sin(angle * M_PI / 3.0)), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * cos(angle * M_PI / 3.0))), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * cos(angle * M_PI / 3.0), 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + side_hexagon * sin(angle * M_PI / 3.0), 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+			}
+
+			zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon)), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+
+			zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet)), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+
+			zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet)), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+
+			zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon)), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+
+			zapis(first_variant, M, pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0), atan2(double(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet), double(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon)), acos(k * distanse_layer / pow((pow(i * 3 * side_hexagon + (abs(k) % 2) * side_hexagon + s_cathet + side_hexagon, 2.0) + pow(j * 3 * side_hexagon + (abs(k) % 2) * side_hexagon - b_cathet, 2.0) + pow(k * distanse_layer, 2.0)), 1 / 2.0)), 467, 0, 0, 0, 0, 0, 0, 0, 0);
+		}*/

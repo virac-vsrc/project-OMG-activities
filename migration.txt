@@ -1,0 +1,386 @@
+#pragma once
+
+#include "stdafx.h"
+#include <math.h>
+using namespace std;
+
+void migration(Variety_of_molecules first_variant[], vector<Molekula>& M, Molekula& MmM);
+bool prov(vector<Molekula>& M_oblast, double x1, double x2, double x3, Molekula& MmM);
+void calculation_potential(vector<Molekula>& M_oblast, vector<Point_migration>& P, int& ii, int& l, Molekula& MmM);
+void oblast(vector<Molekula>& M, Molekula MO, vector<Molekula>& M_oblast);
+
+
+
+void migration(Variety_of_molecules first_variant[], vector<Molekula>& M, Molekula& MmM)
+{
+	MmM.PT_migr.clear();
+
+	bool migr_temp_stop = false;
+	if (MmM.migr_t_on == false)
+	{
+		migr_temp_stop = true;
+	}
+
+	int N = 9, ii = 0, l = 0, k_bind = 0, p_size = 0;
+	double q, radius_search;
+	Potential P_centr;
+	vector<Molekula> M_oblast(0);
+	Point_migration PT;
+
+	radius_search = first_variant[562].sigm * 2.5 * d + expf(f);
+
+	oblast(M, MmM, M_oblast);
+	calculation_potential(M_oblast, P_centr, MmM);
+	MmM.potential_centr = P_centr.U;
+
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			for (int k = 0; k < N; k++)
+			{
+
+				p_size = MmM.PT_migr.size();
+				MmM.PT_migr.push_back(PT);
+
+				//				((first_variant[562].radius * 2.0) / N); 562 - водород
+				MmM.PT_migr[ii - l].P_migr.x = MmM.x - radius_search + i * ((radius_search * 2.0) / N);
+				MmM.PT_migr[ii - l].P_migr.y = MmM.y - radius_search + j * ((radius_search * 2.0) / N);
+				MmM.PT_migr[ii - l].P_migr.z = MmM.z - radius_search + k * ((radius_search * 2.0) / N);
+				MmM.PT_migr[ii - l].P_migr.fi = atan2(MmM.y - radius_search + j * ((radius_search * 2.0) / N), MmM.x - radius_search + i * ((radius_search * 2.0) / N));
+				MmM.PT_migr[ii - l].P_migr.teta = acos((MmM.z - radius_search + k * ((radius_search * 2.0) / N)) / pow((pow(MmM.x - radius_search + i * ((radius_search * 2.0) / N), 2.0) + pow(MmM.y - radius_search + j * ((radius_search * 2.0) / N), 2.0) + pow(MmM.z - radius_search + k * ((radius_search * 2.0) / N), 2.0)), 1 / 2.0));
+				MmM.PT_migr[ii - l].P_migr.r = pow((pow(MmM.x - radius_search + i * ((radius_search * 2.0) / N), 2.0) + pow(MmM.y - radius_search + j * ((radius_search * 2.0) / N), 2.0) + pow(MmM.z - radius_search + k * ((radius_search * 2.0) / N), 2.0)), 1 / 2.0);
+				MmM.PT_migr[ii - l].P_migr_t = MmM.PT_migr[ii - l].P_migr;
+				MmM.PT_migr[ii - l].P_migr_tm = MmM.PT_migr[ii - l].P_migr;
+
+
+				if (MmM.PT_migr[ii - l].P_migr.x == MmM.x && MmM.PT_migr[ii - l].P_migr.y == MmM.y && MmM.PT_migr[ii - l].P_migr.z == MmM.z)
+				{
+					MmM.PT_migr.pop_back();
+					continue;
+				}
+				
+				for (int jj = 0; jj < M_oblast.size(); jj++)
+				{
+					//		q = MmM.radius + M[jj].radius + first_variant[562].radius / 5.0;
+					q = (MmM.sigm + M[jj].sigm) + first_variant[562].radius / 5.0;
+					if (pow((pow((MmM.PT_migr[ii - l].P_migr.x - M_oblast[jj].x), 2.0) + pow((MmM.PT_migr[ii - l].P_migr.y - M_oblast[jj].y), 2.0) + pow((MmM.PT_migr[ii - l].P_migr.z - M_oblast[jj].z), 2.0)), 1 / 2.0) <= q)
+					{
+						MmM.PT_migr[ii - l].bind_number.push_back(M_oblast[jj].number);
+						MmM.PT_migr[ii - l].bind_shift_number.push_back(M_oblast[jj].shift_number);
+					}
+				}
+
+				k_bind = 0;
+
+				for (int jj = 0; jj < MmM.bind_number.size(); jj++)
+				{
+					for (int kk = 0; kk < MmM.PT_migr[ii - l].bind_number.size(); kk++)
+					{
+						if (MmM.PT_migr[ii - l].bind_number[kk] == MmM.bind_number[jj])
+						{
+							k_bind++;
+						}
+					}
+
+					if (k_bind == 0)
+					{
+						MmM.PT_migr[ii - l].torn_bind_number.push_back(MmM.bind_number[jj]);
+						MmM.PT_migr[ii - l].torn_bind_shift_number.push_back(MmM.bind_shift_number[jj]);
+					}
+
+					if (k_bind == 1)
+					{
+						MmM.PT_migr[ii - l].build_bind_number.push_back(MmM.bind_number[jj]);
+						MmM.PT_migr[ii - l].build_bind_shift_number.push_back(MmM.bind_shift_number[jj]);
+					}
+					k_bind = 0;
+				}
+
+				if (MmM.PT_migr[ii - l].torn_bind_shift_number.size() == 0)
+				{
+					MmM.PT_migr.erase(MmM.PT_migr.begin() + (ii - l));
+					ii++;
+					l++;
+					continue;
+				}
+
+				
+
+				if (prov(M_oblast, MmM.PT_migr[ii - l].P_migr.x, MmM.PT_migr[ii - l].P_migr.y, MmM.PT_migr[ii - l].P_migr.z, MmM) == false && ii > 0)
+				{
+					MmM.PT_migr.erase(MmM.PT_migr.begin() + (ii - l));
+					ii++;
+					l++;
+					continue;
+				}
+
+				Vector3 normal, Point, A, B;
+
+				calculation_gradient(M_oblast, first_variant, normal, MmM.PT_migr[ii - l].P_migr, MmM.index);
+
+				normal = -normal;
+				normal.newfi();
+				normal.newteta();
+				normal.r = 1;
+				normal.newx();
+				normal.newy();
+				normal.newz();
+
+				A.x = MmM.x;
+				A.y = MmM.y;
+				A.z = MmM.z;
+
+				B.x = MmM.PT_migr[ii - l].P_migr.x;
+				B.y = MmM.PT_migr[ii - l].P_migr.y;
+				B.z = MmM.PT_migr[ii - l].P_migr.z;
+
+				Point = point_calculation(normal, A, B);
+
+				if (pow(A.x - Point.x, 2.0) + pow(A.y - Point.y, 2.0) + pow(A.z - Point.z, 2.0) < pow(radius_search / N, 2.0))
+				{
+					MmM.PT_migr.erase(MmM.PT_migr.begin() + (ii - l));
+					ii++;
+					l++;
+					continue;
+				}
+
+				calculation_potential(M_oblast, MmM.PT_migr, ii, l, MmM);
+
+
+				if (MmM.PT_migr[ii - l].P_migr.U >= 0 && ii > 0)
+				{
+					MmM.PT_migr.erase(MmM.PT_migr.begin() + (ii - l));
+					ii++;
+					l++;
+					continue;
+				}
+				//				MmM.PT_migr[ii - l].P_migr.U = potencial(first_variant, M, MmM.PT_migr[ii - l].P_migr.r, MmM.PT_migr[ii - l].P_migr.fi, MmM.PT_migr[ii - l].P_migr.teta, MmM.index, MmM.shift_number);
+
+				MmM.PT_migr[ii - l].P_migr.U = potencial(first_variant, M, MmM.PT_migr[ii - l].P_migr_t.r, MmM.PT_migr[ii - l].P_migr_t.fi, MmM.PT_migr[ii - l].P_migr_t.teta, MmM.index, MmM.shift_number);
+				MmM.PT_migr[ii - l].P_migr_t.newx();
+				MmM.PT_migr[ii - l].P_migr_t.newy();
+				MmM.PT_migr[ii - l].P_migr_t.newz();
+
+				MmM.PT_migr[ii - l].P_migr.x = MmM.PT_migr[ii - l].P_migr_t.x;
+				MmM.PT_migr[ii - l].P_migr.y = MmM.PT_migr[ii - l].P_migr_t.y;
+				MmM.PT_migr[ii - l].P_migr.z = MmM.PT_migr[ii - l].P_migr_t.z;
+				MmM.PT_migr[ii - l].P_migr.r = MmM.PT_migr[ii - l].P_migr_t.r;
+				MmM.PT_migr[ii - l].P_migr.fi = MmM.PT_migr[ii - l].P_migr_t.fi;
+				MmM.PT_migr[ii - l].P_migr.teta = MmM.PT_migr[ii - l].P_migr_t.teta;
+
+//				calculation_potential(M_oblast, MmM.PT_migr, ii, l, MmM);
+
+				bool migr_kvant_stop = false;
+				if (MmM.PT_migr[ii - l].P_migr.U >= MmM.potential_centr)
+				{
+					migr_kvant_stop = true;
+					MmM.PT_migr.erase(MmM.PT_migr.begin() + (ii - l));
+					ii++;
+					l++;
+					continue;
+				}
+				//				MmM.PT_migr[ii - l].P_migr.newx(MmM.PT_migr[ii - l].P_migr.r, MmM.PT_migr[ii - l].P_migr.fi, MmM.PT_migr[ii - l].P_migr.teta);
+				//				MmM.PT_migr[ii - l].P_migr.newy(MmM.PT_migr[ii - l].P_migr.r, MmM.PT_migr[ii - l].P_migr.fi, MmM.PT_migr[ii - l].P_migr.teta);
+				//				MmM.PT_migr[ii - l].P_migr.newz(MmM.PT_migr[ii - l].P_migr.r, MmM.PT_migr[ii - l].P_migr.fi, MmM.PT_migr[ii - l].P_migr.teta);
+
+				if (migr_kvant_stop == true && migr_temp_stop == true)
+				{
+					MmM.PT_migr.erase(MmM.PT_migr.begin() + (ii - l));
+					ii++;
+					l++;
+					continue;
+				}
+
+				if (p_size == MmM.PT_migr.size())
+				{
+					ii++;
+					continue;
+				}
+
+
+				MmM.PT_migr[ii - l].r_v = pow((pow((MmM.PT_migr[ii - l].P_migr_t.x - MmM.x), 2.0) + pow((MmM.PT_migr[ii - l].P_migr_t.y - MmM.y), 2.0) + pow((MmM.PT_migr[ii - l].P_migr_t.z - MmM.z), 2.0)), 1 / 2.0);
+				for (int jj = 0; jj < M_oblast.size(); jj++)
+				{
+					//		q = MmM.radius + M[jj].radius + first_variant[562].radius / 5.0;
+		//					q = (MmM.sigm + M[jj].sigm) / 2.0 + first_variant[562].radius;
+		//					q = (MmM.sigm + M[jj].sigm) / 2.0 * pow(2, 1 / 6.0);
+		//					q = MmM.sigm + M[jj].sigm + first_variant[562].radius / 10.0;
+					q = (MmM.sigm + M[jj].sigm);
+					if (pow((pow((MmM.PT_migr[ii - l].P_migr.x - M_oblast[jj].x), 2.0) + pow((MmM.PT_migr[ii - l].P_migr.y - M_oblast[jj].y), 2.0) + pow((MmM.PT_migr[ii - l].P_migr.z - M_oblast[jj].z), 2.0)), 1 / 2.0) <= q)
+					{
+						MmM.PT_migr[ii - l].bind_number.push_back(M_oblast[jj].number);
+						MmM.PT_migr[ii - l].bind_shift_number.push_back(M_oblast[jj].shift_number);
+					}
+				}
+				
+				k_bind = 0;
+
+				for (int jj = 0; jj < MmM.PT_migr.size() - 1; jj++)
+				{
+					double asdf = pow((pow((MmM.PT_migr[ii - l].P_migr.x - MmM.x), 2.0) + pow((MmM.PT_migr[ii - l].P_migr.y - MmM.y), 2.0) + pow((MmM.PT_migr[ii - l].P_migr.z - MmM.z), 2.0)), 1 / 2.0);
+					if (((abs(MmM.PT_migr[jj].P_migr.x) > abs(MmM.PT_migr[ii - l].P_migr.x) - first_variant[562].radius / 10.0 && abs(MmM.PT_migr[jj].P_migr.y) > abs(MmM.PT_migr[ii - l].P_migr.y) - first_variant[562].radius / 10.0 && abs(MmM.PT_migr[jj].P_migr.z) > abs(MmM.PT_migr[ii - l].P_migr.z) - first_variant[562].radius / 10.0) && (abs(MmM.PT_migr[jj].P_migr.x) < abs(MmM.PT_migr[ii - l].P_migr.x) + first_variant[562].radius / 10.0 && abs(MmM.PT_migr[jj].P_migr.y) < abs(MmM.PT_migr[ii - l].P_migr.y) + first_variant[562].radius / 10.0 && abs(MmM.PT_migr[jj].P_migr.z) < abs(MmM.PT_migr[ii - l].P_migr.z) + first_variant[562].radius / 10.0) && (sign(MmM.PT_migr[jj].P_migr.x) == sign(MmM.PT_migr[ii - l].P_migr.x) && sign(MmM.PT_migr[jj].P_migr.y) == sign(MmM.PT_migr[ii - l].P_migr.y) && sign(MmM.PT_migr[jj].P_migr.z) == sign(MmM.PT_migr[ii - l].P_migr.z))) || (pow((pow((MmM.PT_migr[ii - l].P_migr.x - MmM.x), 2.0) + pow((MmM.PT_migr[ii - l].P_migr.y - MmM.y), 2.0) + pow((MmM.PT_migr[ii - l].P_migr.z - MmM.z), 2.0)), 1 / 2.0) <= MmM.radius * 2))
+					{
+						MmM.PT_migr.erase(MmM.PT_migr.begin() + (ii - l));
+						ii++;
+						l++;
+						k_bind = 1;
+						break;
+					}
+				}
+
+				if (k_bind == 1)
+				{
+					continue;
+				}
+				
+				k_bind = 0;
+
+				for (int jj = 0; jj < MmM.bind_number.size(); jj++)
+				{
+					for (int kk = 0; kk < MmM.PT_migr[ii - l].bind_number.size(); kk++)
+					{
+						if (MmM.PT_migr[ii - l].bind_number[kk] == MmM.bind_number[jj])
+						{
+							k_bind++;
+						}
+					}
+
+					if (k_bind == 0)
+					{
+						MmM.PT_migr[ii - l].torn_bind_number.push_back(MmM.bind_number[jj]);
+						MmM.PT_migr[ii - l].torn_bind_shift_number.push_back(MmM.bind_shift_number[jj]);
+					}
+
+					if (k_bind == 1)
+					{
+						MmM.PT_migr[ii - l].save_bind_number.push_back(MmM.bind_number[jj]);
+						MmM.PT_migr[ii - l].save_bind_shift_number.push_back(MmM.bind_shift_number[jj]);
+					}
+					k_bind = 0;
+				}
+
+				if (MmM.PT_migr[ii - l].torn_bind_shift_number.size() == 0 || MmM.PT_migr[ii - l].torn_bind_shift_number.size() == MmM.n_bind) //|| MmM.PT_migr[ii - l].bind_shift_number.size() == 1
+				{
+					MmM.PT_migr.erase(MmM.PT_migr.begin() + (ii - l));
+					ii++;
+					l++;
+					continue;
+				}
+				
+				k_bind = 0;
+
+				for (int jj = 0; jj < MmM.PT_migr[ii - l].bind_number.size(); jj++)
+				{
+					for (int kk = 0; kk < MmM.bind_number.size(); kk++)
+					{
+						if (MmM.PT_migr[ii - l].bind_number[jj] == MmM.bind_number[kk])
+						{
+							k_bind++;
+						}
+					}
+
+					if (k_bind == 0)
+					{
+						MmM.PT_migr[ii - l].build_bind_number.push_back(MmM.PT_migr[ii - l].bind_number[jj]);
+						MmM.PT_migr[ii - l].build_bind_shift_number.push_back(MmM.PT_migr[ii - l].bind_shift_number[jj]);
+					}
+
+					k_bind = 0;
+				}
+				if (migr_kvant_stop == false)
+				{
+					MmM.PT_migr[ii - l].r_v = pow((pow((MmM.PT_migr[ii - l].P_migr.x - MmM.x), 2.0) + pow((MmM.PT_migr[ii - l].P_migr.y - MmM.y), 2.0) + pow((MmM.PT_migr[ii - l].P_migr.z - MmM.z), 2.0)), 1.0 / 2.0);
+					MmM.PT_migr[ii - l].k_migr = Nu * exp(-((2.0 * MmM.PT_migr[ii - l].r_v * pow(10, -8)) / (h_plank/(2.0*M_PI))) * pow(2 * MmM.mass * first_variant[MmM.index].E_bind * MmM.PT_migr[ii - l].torn_bind_shift_number.size() * kB, 1 / 2.0));
+
+				}
+				else
+				{
+					MmM.PT_migr[ii - l].k_migr = 0;
+				}
+
+				MmM.PT_migr[ii - l].k_migr_t = Nu * exp((MmM.potential_centr - MmM.PT_migr[ii - l].P_migr_t.U) / kB / T);
+
+				ii++;
+			}
+		}
+	}
+
+}
+
+bool prov(vector<Molekula>& M_oblast, double x1, double x2, double x3, Molekula& MmM)
+{
+	double q;
+	for (int j = 0; j < M_oblast.size(); j++)
+	{
+		q = MmM.radius + M_oblast[j].radius;
+		if (pow((pow((x1 - M_oblast[j].x), 2.0) + pow((x2 - M_oblast[j].y), 2.0) + pow((x3 - M_oblast[j].z), 2.0)), 1 / 2.0) <= q)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+
+void calculation_potential(vector<Molekula>& M_oblast, vector<Point_migration>& P, int& ii, int& l, Molekula& MmM)
+{
+	double r_u;
+	Potential PP_1, PP_2;
+
+	P[ii - l].P_migr.newx(P[ii - l].P_migr.r, P[ii - l].P_migr.fi, P[ii - l].P_migr.teta);
+	P[ii - l].P_migr.newy(P[ii - l].P_migr.r, P[ii - l].P_migr.fi, P[ii - l].P_migr.teta);
+	P[ii - l].P_migr.newz(P[ii - l].P_migr.r, P[ii - l].P_migr.fi, P[ii - l].P_migr.teta);
+	
+	if (prov(M_oblast, P[ii - l].P_migr.x, P[ii - l].P_migr.y, P[ii - l].P_migr.z, MmM) == false && ii > 0)
+	{
+		P.erase(P.begin() + (ii - l));
+		ii++;
+		l++;
+		return;
+	}	
+	
+	if (P[ii - l].P_migr.U >= 0 && ii > 0)
+	{
+		P.erase(P.begin() + (ii - l));
+		ii++;
+		l++;
+		return;
+	}
+	
+}
+
+void oblast(vector<Molekula>& M, Molekula MO, vector<Molekula>& M_oblast)
+{
+	int yy = 0;
+	Molekula MM;
+
+	for (int i = 1; i < M.size(); i++)
+	{
+		if (pow((pow((MO.x - M[i].x), 2.0) + pow((MO.y - M[i].y), 2.0) + pow((MO.z - M[i].z), 2.0)), 1 / 2.0) <= 3.5 * sigm_MAX && (M[i].number != MO.number))
+		{
+			M_oblast.push_back(MM);
+			M_oblast[yy] = M[i];
+			yy++;
+		}
+	}
+}
+
+
+
+/*
+for (int kk = 0; kk < MmM.bind_number.size(); kk++)
+{
+for (int tt = 0; tt < MmM.PT_migr[ii - l].torn_bind_number.size(); tt++)
+{
+if (MmM.PT_migr[ii - l].bind_number[jj] == MmM.bind_number[kk])
+{
+k_bind++;
+}
+
+if (MmM.PT_migr[ii - l].bind_number[jj] == MmM.PT_migr[ii - l].torn_bind_number[tt])
+{
+k_bind++;
+}
+}
+}*/

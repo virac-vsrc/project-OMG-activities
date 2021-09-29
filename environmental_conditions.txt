@@ -1,0 +1,8 @@
+#include "stdafx.h"
+#include <math.h>
+using namespace std;
+
+
+double T = 10;
+double T_d = 10; 
+double density = pow(10.0, 5.0); 

@@ -1,0 +1,1251 @@
+#pragma once
+
+#include "stdafx.h"
+#include <math.h>
+using namespace std;
+
+struct sort_class_U
+{
+	bool operator() (Potential i, Potential j)
+	{
+		return (i.U < j.U);
+	}
+} sort_U;
+
+class Rs
+{
+	public:
+		Rs()
+		{
+			number_step = 0;
+			number_position = 0;
+			Vr = 0;
+			U = 0;
+			Gradient_lenght = 0;
+			Grad_x = 0;
+			Grad_y = 0;
+			Grad_z = 0;
+			x = 0;
+			y = 0;
+			z = 0;
+			teta = 0;
+			fi = 0;
+			r = 0;
+		}
+		~Rs()
+		{
+
+		}
+		int number_step, number_position;
+		double Vr, U, Gradient_lenght, Grad_x, Grad_y, Grad_z, x, y, z, r, fi, teta;
+		vector<double> r_u;
+};
+
+double potencial(Variety_of_molecules first_variant[], vector<Molekula>  &M, double &r, double &fi, double &teta, int p, int number_f);
+bool prov(Variety_of_molecules first_variant[], vector<Molekula>  &M_oblast, double r, double fi, double teta, int p, double x1, double x2, double x3);
+void calculation_potential(Variety_of_molecules first_variant[], vector<Molekula>  &M_oblast, double r, double fi, double teta, int p, vector<Potential> &P, int ii, int &l);
+double x_k_optimozation(vector<Molekula>  &M_oblast, Variety_of_molecules first_variant[], Potential &PP, int p, double x_k, double &f1r_length);
+void x_k_optimozation(vector<Molekula>  &M_oblast, Variety_of_molecules first_variant[], Potential &PP, int p, Vector3 &f1r);
+void x_optimozation(vector<Molekula>  &M_oblast, Variety_of_molecules first_variant[], Potential &PP, int p, Vector3 &X_k, Vector3 &f1r);
+bool sign(double a);
+double derivative(vector<Molekula>  &M_oblast, Variety_of_molecules first_variant[], Potential &PP, int p);
+bool sign_point(Vector3 Normal, Vector3 Gradient);
+
+template<class T>
+T sign(T x);
+//bool comp(double i, double j);
+
+double potencial(Variety_of_molecules first_variant[], vector<Molekula>  &M, double &r, double &fi, double &teta, int p, int number_f)
+{
+	double P_U0 = 0;
+	int nn, s_couter = 1, vrn1 = 0, vrn2 = 0, vrn = 0;
+
+	double S = 0, d_r;
+	vector<Potential> P(0);
+	vector<Molekula> M_oblast(0);
+
+
+	Potential PP, PP_a, PP_b, PP_ab;
+	Vector3 Gradient, U, V, Gradient_a, Gradient_b, X_k(0, 0, 0), Normal(0, 0, 0);
+
+
+	nn = 0;
+	d_r = 0.1;
+	oblast(M, r, fi, teta, M_oblast, number_f);
+
+
+	U.r = r;
+	U.fi = fi;
+	U.teta = teta;
+	U.newx();
+	U.newy();
+	U.newz();
+
+	PP.r = r;
+	PP.fi = fi;
+	PP.teta = teta;
+	PP.newx();
+	PP.newy();
+	PP.newz();
+
+	d_r = 0.1;
+	Normal = Gradient;
+	do 
+	{
+		V.x = -Gradient.a;
+		V.y = -Gradient.b;
+		V.z = -Gradient.c;
+		V.newfi();
+		V.newteta();
+		V.newr(); 
+		V.r = 0;
+
+		double f1r_length = 0, r_ab, a;
+		Vector3 f1r(0, 0, 0), f1r_a(0, 0, 0), f1r_b(0, 0, 0);
+//		bool ns = 0;
+
+		if (sign_point(Normal, Gradient) == false)
+		{
+			d_r = -0.1;	
+			ns = 1;
+		}
+		else
+		{
+			d_r = 0.1;
+		}
+
+//		d_r = 0.1;
+
+		double x_k_optimozation(M_oblast, first_variant, PP, p, x_k, f1r_length);
+
+		int ss = 0;
+		//		bool agx, agy, agz, bgx, bgy, bgz;
+		//		Gradient_a = Gradient;
+		PP_a = PP;
+		do
+		{
+			V.r = V.r + d_r;
+			V.newx();
+			V.newy();
+			V.newz();
+
+			//			PP_a = PP_ab;
+
+			PP_ab.x = V.x + U.x;
+			PP_ab.y = V.y + U.y;
+			PP_ab.z = V.z + U.z;
+			PP_ab.newfi();
+			PP_ab.newteta();
+			PP_ab.newr();
+
+			PP_b = PP_ab;
+
+			calculation_potential(first_variant, M_oblast, p, PP_ab, eps_nearest);
+			
+
+			if (sign_point(Normal, Gradient_b) == false)
+			{
+				V.r = V.r - d_r;
+				V.newx();
+				V.newy();
+				V.newz();
+				PP_b = PP_ab;
+				ss = 1;
+			}
+
+			if (vrn1 > 1000)
+			{
+				looping++;
+				return 99999;
+			}
+			vrn1++;
+
+
+		} while (ss == 0);
+		a = 0;
+		x_k_optimozation(M_oblast, first_variant, PP_a, p, f1r_a);
+		x_k_optimozation(M_oblast, first_variant, PP_b, p, f1r_b);
+		f1r_a.Vector_length();
+		f1r_b.Vector_length();
+		do
+		{
+
+			r_ab = pow((pow((PP_a.x - PP_b.x), 2.0) + pow((PP_a.y - PP_b.y), 2.0) + pow((PP_a.z - PP_b.z), 2.0)), 1 / 2.0);
+			X_k.r = a + (f1r_a.length / (f1r_a.length - f1r_b.length)) * r_ab;
+			X_k.newx();
+			X_k.newy();
+			X_k.newz();
+
+			PP_ab.x = X_k.x + U.x + V.x;
+			PP_ab.y = X_k.y + U.y + V.y;
+			PP_ab.z = X_k.z + U.z + V.z;
+			PP_ab.newfi();
+			PP_ab.newteta();
+			PP_ab.newr();
+
+			x_k_optimozation(M_oblast, first_variant, PP_ab, p, f1r);
+			f1r.Vector_length();
+			f1r_length = f1r.length;
+			if (sign_point(Normal, f1r) == false)
+			{
+				PP_b = PP_ab;
+				f1r_b = f1r;
+			}
+			else
+			{
+				PP_a = PP_ab;
+				f1r_a = f1r;
+				a = V.r;
+			}
+
+			calculation_potential(first_variant, M_oblast, p, PP_a, eps_nearest);
+
+			if (vrn2 > 1000)
+			{
+				looping++;
+				return 99999;
+			}
+			vrn2++;
+
+
+		} while (f1r_length / kB > delta);
+		//		(abs((P_U0 - PP.U) / kB) > delta)  (Gradient.length / kB > delta)
+
+		RS.push_back(Rss);
+		RS[nn].number_step = nn;
+		RS[nn].Vr = V.r;
+		RS[nn].U = PP.U / kB;
+		RS[nn].Gradient_lenght = Gradient.length / kB;
+		RS[nn].Grad_x = Gradient.x / kB;
+		RS[nn].Grad_y = Gradient.y / kB;
+		RS[nn].Grad_z = Gradient.z / kB;
+		RS[nn].x = PP.x;
+		RS[nn].y = PP.y;
+		RS[nn].z = PP.z;
+		RS[nn].teta = PP.teta;
+		RS[nn].fi = PP.fi;
+		RS[nn].r = PP.r;
+		for (int i = 0; i < M_oblast.size(); i++)
+		{
+			RS[nn].r_u.push_back(pow((pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0)), 1 / 2.0));
+		}
+
+		if (Gradient.length / kB <= 5 && PP.U / kB > -eps_nearest / kB / 1.5 && (PP.U < 0 || P_U0 < 0))
+		{
+			s_couter = 1;
+			V.r = 0.5;
+			RS[nn].number_position = 0;
+			RS[nn].Vr = V.r;	
+		}
+		else
+			if ((Gradient.length / kB > eps_nearest / kB / 1.5 || (Gradient.length / kB > 5 && PP.U / kB > -eps_nearest / kB)) && (PP.U < 0 || P_U0 < 0))
+			{
+				s_couter = 1;
+				//V.r = abs(1.0 / log10(Gradient.length / kB));
+				V.r = 4 * (0.1 / (Gradient.length / kB));
+				RS[nn].number_position = 1;
+				RS[nn].Vr = V.r;
+			}
+			else
+				if ((Gradient.length / kB >= 10 && Gradient.length / kB < Gradient.length / kB < eps_nearest / kB / 1.5) && (PP.U < 0 || P_U0 < 0))
+				{
+					s_couter = 1;
+					V.r = 2 * (0.1 / (Gradient.length / kB));
+					RS[nn].number_position = 2;
+					RS[nn].Vr = V.r;
+				}
+				else
+					if ((Gradient.length / kB >= 2 && Gradient.length / kB < 10) && (PP.U < 0 || P_U0 < 0))
+					{
+						s_couter = 1;
+						V.r = 2 * pow(0.1 / (Gradient.length / kB), 2.0);
+						RS[nn].number_position = 3;
+						RS[nn].Vr = V.r;
+					}
+					else
+						if ((Gradient.length / kB >= 1 && Gradient.length / kB < 2) && (PP.U < 0 || P_U0 < 0))
+						{
+							s_couter = 1;
+							V.r = 2 * pow(0.1 / (Gradient.length / kB), 3.0);
+							RS[nn].number_position = 4;
+							RS[nn].Vr = V.r;
+						}
+						else
+							if ((Gradient.length / kB >= 0.5 && Gradient.length / kB < 1) && (PP.U < 0 || P_U0 < 0))
+							{
+								s_couter = 1;
+								V.r = 2 * pow(0.1 / (Gradient.length / kB), 6.0);
+								RS[nn].number_position = 5;
+								RS[nn].Vr = V.r;
+							}
+							else
+								if ((Gradient.length / kB >= 0.1 && Gradient.length / kB < 0.5) && (PP.U < 0 || P_U0 < 0))
+								{
+									s_couter = 1;
+									V.r = pow(10.0, -5) * Gradient.length / kB;
+									RS[nn].number_position = 6;
+									RS[nn].Vr = V.r;
+								}
+								else
+									if ((Gradient.length / kB > delta && Gradient.length / kB < 0.1) && (PP.U < 0 || P_U0 < 0))
+									{
+										s_couter = 1;
+										V.r = pow(10.0, -6) * Gradient.length / kB;
+										RS[nn].number_position = 7;
+										RS[nn].Vr = V.r;
+									}
+									else
+										if (PP.U > 0 && P_U0 > 0 && Gradient.a + a < pow(10, -10) && Gradient.b + b < pow(10, -10) && Gradient.c + c < pow(10, -10))
+										{
+											positive_minimum++;
+											s_couter++;
+											V.r = 0.1 * s_couter;
+											RS[nn].number_position = 8;
+											RS[nn].Vr = V.r;
+											return 99999;
+										}
+										else
+										{
+//											s_couter = 1;
+											V.r = delta / 2.0;
+											RS[nn].number_position = 9;
+											RS[nn].Vr = V.r;
+										}
+
+
+
+//		V.r = V.r + X_k.r;
+		V.newx();
+		V.newy();
+		V.newz();
+
+		PP.x = V.x + U.x;
+		PP.y = V.y + U.y;
+		PP.z = V.z + U.z;
+		PP.newfi();
+		PP.newteta();
+		PP.newr();
+
+		PP_ab = PP;
+
+		U.r = PP.r;
+		U.fi = PP.fi;
+		U.teta = PP.teta;
+		U.x = PP.x;
+		U.y = PP.y;
+		U.z = PP.z;
+
+//		P_U0 = PP.U;
+		calculation_potential(first_variant, M_oblast, p, PP);	
+
+		S = S + pow(pow(r * sin(teta)*cos(fi) - PP.x, 2.0) + pow(r * sin(teta)*sin(fi) - PP.y, 2.0) + pow(r * cos(teta) - PP.z, 2.0), 1 / 2.0);
+		if (S > 3 * sigm_MAX)
+		{
+			S = 0;
+			M_oblast.clear();
+			oblast(M, PP.r, PP.fi, PP.teta, M_oblast, number_f);
+		}
+
+		nn++;
+
+	} while (Gradient.length / kB >= delta);// || PP.U / kB > -eps_nearest / kB / 1.5 (abs(P_U0 / kB - PP2.U / kB) >= 0.000001);//(nn < Nr);// (abs(Gradient.length / kB) >= 0.001);
+	
+	calculation_potential(first_variant, M_oblast, p, PP);
+
+	r = PP.r;
+	fi = PP.fi;
+	teta = PP.teta;
+	P_U0 = PP.U;
+
+	if (p != 467)
+	{
+		picture_color_bind(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+		if (-P_U0 / kB <= 250)
+			picture_color_bind_350(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+		if (-P_U0 / kB > 250 && -P_U0 / kB <= 450)
+			picture_color_bind_350_500(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+		if (-P_U0 / kB > 450 && -P_U0 / kB <= 1000)
+			picture_color_bind_500_700(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+		if (-P_U0 / kB > 1000)
+			picture_color_bind_700(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+		N_step_P.open(N_st_P, ios_base::app);
+		N_step_P << nn << "\t";
+		N_step_P.clear();
+		N_step_P.close();
+
+		P_U_out.open(Poten_K, ios_base::app);
+		P_U_out << P_U0 / kB << endl;
+		P_U_out.clear();
+		P_U_out.close();
+	}
+	else
+	{
+		N_step_P_A.open(N_st_P_A, ios_base::app);
+		N_step_P_A << nn << "\t";
+		N_step_P_A.clear();
+		N_step_P_A.close();
+	}
+	
+
+	return P_U0;
+
+}
+
+/*
+bool comp (double i, double j)
+{
+return (i > j);
+}
+*/
+
+
+bool prov(Variety_of_molecules first_variant[], vector<Molekula>  &M_oblast, double r, double fi, double teta, int p, double x1, double x2, double x3)
+{
+	double q;
+	for (int j = 0; j < M_oblast.size(); j++)
+	{
+		q = first_variant[p].radius + M_oblast[j].radius;
+		if (pow((pow((x1 - M_oblast[j].x), 2.0) + pow((x2 - M_oblast[j].y), 2.0) + pow((x3 - M_oblast[j].z), 2.0)), 1 / 2.0) <= q)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+
+void calculation_potential(Variety_of_molecules first_variant[], vector<Molekula>  &M_oblast, double r, double fi, double teta, int p, vector<Potential> &P, int ii, int &l)
+{
+	double r_u;
+	Potential PP;
+
+	P[ii - l].newx(P[ii - l].r, P[ii - l].fi, P[ii - l].teta);
+	P[ii - l].newy(P[ii - l].r, P[ii - l].fi, P[ii - l].teta);
+	P[ii - l].newz(P[ii - l].r, P[ii - l].fi, P[ii - l].teta);
+
+	if (prov(first_variant, M_oblast, r, fi, teta, p, P[ii - l].x, P[ii - l].y, P[ii - l].z) == false && ii >= 0)
+	{
+		P.erase(P.begin() + (ii - l));
+		l++;
+		return;
+	}
+	for (int i = 0; i < M_oblast.size(); i++)
+	{
+
+		if (pow((pow((P[ii - l].x - M_oblast[i].x), 2.0) + pow((P[ii - l].y - M_oblast[i].y), 2.0) + pow((P[ii - l].z - M_oblast[i].z), 2.0)), 1 / 2.0) <= 2.5 * sigm_MAX)
+		{
+			r_u = pow((pow((P[ii - l].x - M_oblast[i].x), 2.0) + pow((P[ii - l].y - M_oblast[i].y), 2.0) + pow((P[ii - l].z - M_oblast[i].z), 2.0)), 1 / 2.0);
+			//			if (r_u==0)
+			//			{
+			//				P[ii - l].U = std::numeric_limits<double>::max();
+			//				continue;
+			//			}
+			double hhhh = pow(M_oblast[i].eps * first_variant[index].eps, 1 / 2.0);
+			P[ii - l].U = P[ii - l].U + 4 * pow(M_oblast[i].eps * first_variant[p].eps, 1 / 2.0) * (pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0 / r_u, 12) - pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0 / r_u, 6));
+		}
+	}
+}
+
+double x_k_optimozation(vector<Molekula>  &M_oblast, Variety_of_molecules first_variant[], Potential &PP, int p, double x_k, double &f1r_length)
+{
+	Vector3 f1r(0,0,0), f2r(0,0,0);
+	for (int i = 0; i < M_oblast.size(); i++)
+	{
+		f1r.x = f1r.x + 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.x - M_oblast[i].x) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.x - M_oblast[i].x) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r.y = f1r.y + 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.y - M_oblast[i].y) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.y - M_oblast[i].y) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r.z = f1r.z + 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.z - M_oblast[i].z) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.z - M_oblast[i].z) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f2r.x = f2r.x + 672 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.x - M_oblast[i].x, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -8.0) - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 192 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.x - M_oblast[i].x, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -5.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f2r.y = f2r.y + 672 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.y - M_oblast[i].y, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -8.0) - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 192 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.y - M_oblast[i].y, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -5.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f2r.z = f2r.z + 672 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.z - M_oblast[i].z, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -8.0) - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 192 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.z - M_oblast[i].z, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -5.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);		
+	}
+
+	f1r.Vector_length();
+	f2r.Vector_length();
+	f1r_length = f1r.length;
+	return x_k + f1r.length / f2r.length;
+}
+
+void x_optimozation(vector<Molekula>  &M_oblast, Variety_of_molecules first_variant[], Potential &PP, int p, Vector3 &X_k, Vector3 &f1r)
+{
+	Vector3 f2r(0, 0, 0);
+
+	f1r.x = 0;
+	f1r.y = 0;
+	f1r.z = 0;
+
+	for (int i = 0; i < M_oblast.size(); i++)
+	{
+		f1r.x = f1r.x + 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.x - M_oblast[i].x) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.x - M_oblast[i].x) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r.y = f1r.y + 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.y - M_oblast[i].y) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.y - M_oblast[i].y) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r.z = f1r.z + 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.z - M_oblast[i].z) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.z - M_oblast[i].z) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f2r.x = f2r.x + 672 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.x - M_oblast[i].x, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -8.0) - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 192 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.x - M_oblast[i].x, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -5.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f2r.y = f2r.y + 672 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.y - M_oblast[i].y, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -8.0) - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 192 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.y - M_oblast[i].y, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -5.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f2r.z = f2r.z + 672 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.z - M_oblast[i].z, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -8.0) - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) - 192 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow(PP.z - M_oblast[i].z, 2.0) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -5.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+	}
+
+	f1r.Vector_length();
+	f2r.Vector_length();
+	X_k.x = X_k.x - f1r.x / f2r.x;
+	X_k.y = X_k.y - f1r.y / f2r.y;
+	X_k.z = X_k.z - f1r.z / f2r.z;
+}
+
+void x_k_optimozation(vector<Molekula>  &M_oblast, Variety_of_molecules first_variant[], Potential &PP, int p, Vector3 &f1r)
+{
+	f1r.x = 0;
+	f1r.y = 0;
+	f1r.z = 0;
+
+	for (int i = 0; i < M_oblast.size(); i++)
+	{
+		f1r.x = f1r.x - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.x - M_oblast[i].x) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.x - M_oblast[i].x) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r.y = f1r.y - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.y - M_oblast[i].y) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.y - M_oblast[i].y) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r.z = f1r.z - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.z - M_oblast[i].z) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP.z - M_oblast[i].z) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -4.0);
+	}
+}
+
+double derivative(vector<Molekula>  &M_oblast, Variety_of_molecules first_variant[], Potential &PP, int p)
+{
+	double f1r;
+	for (int i = 0; i < M_oblast.size(); i++)
+	{
+		f1r = f1r - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -13.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0), -7.0);
+	}
+	return f1r;
+}
+
+bool sign_point(Vector3 Normal, Vector3 Gradient)
+{
+	if (Normal.x * Gradient.x + Normal.y * Gradient.y + Normal.z * Gradient.z > 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+template<class T>
+T sign(T x)
+{
+	return x < 0 ? -1 : x == 0 ? 0 : -1;
+}
+
+bool sign(double a)
+{
+	if (a >= 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+// if (PP.U > 0 && P_U0 > 0 && ((Gradient.a - a < pow(10, -10) && Gradient.b - b < pow(10, -10) && Gradient.c - c < pow(10, -10)) || (Gradient.a + a < pow(10, -10) && Gradient.b + b < pow(10, -10) && Gradient.c + c < pow(10, -10))))
+
+/*
+		Normal = Gradient;
+		int ss = 0;
+//		bool agx, agy, agz, bgx, bgy, bgz;
+//		Gradient_a = Gradient;
+		PP_a = PP;
+		do
+		{
+			V.r = V.r + d_r;
+			V.newx();
+			V.newy();
+			V.newz();
+
+//			PP_a = PP_ab;
+
+			PP_ab.x = V.x + U.x;
+			PP_ab.y = V.y + U.y;
+			PP_ab.z = V.z + U.z;
+			PP_ab.newfi();
+			PP_ab.newteta();
+			PP_ab.newr();
+
+			PP_b = PP_ab;
+
+			calculation_potential(first_variant, M_oblast, p, PP_ab, eps_nearest);
+			calculation_gradient(M_oblast, first_variant, Gradient_b, PP_ab, p);
+
+			if (sign_point(Normal, Gradient_b) == false)
+			{
+				V.r = V.r - d_r;
+				V.newx();
+				V.newy();
+				V.newz();
+				PP_b = PP_ab;
+				ss = 1;
+			}
+
+if (vrn1 > 1000)
+{
+	looping++;
+	return 99999;
+}
+vrn1++;
+
+
+		} while (ss == 0);
+		a = 0;
+		x_k_optimozation(M_oblast, first_variant, PP_a, p, f1r_a);
+		x_k_optimozation(M_oblast, first_variant, PP_b, p, f1r_b);
+		f1r_a.Vector_length();
+		f1r_b.Vector_length();
+		do
+		{
+
+			r_ab = pow((pow((PP_a.x - PP_b.x), 2.0) + pow((PP_a.y - PP_b.y), 2.0) + pow((PP_a.z - PP_b.z), 2.0)), 1 / 2.0);
+			X_k.r = a + (f1r_a.length / (f1r_a.length - f1r_b.length)) * r_ab;
+			X_k.newx();
+			X_k.newy();
+			X_k.newz();
+
+			PP_ab.x = X_k.x + U.x + V.x;
+			PP_ab.y = X_k.y + U.y + V.y;
+			PP_ab.z = X_k.z + U.z + V.z;
+			PP_ab.newfi();
+			PP_ab.newteta();
+			PP_ab.newr();
+
+			x_k_optimozation(M_oblast, first_variant, PP_ab, p, f1r);
+			f1r.Vector_length();
+			f1r_length = f1r.length;
+			if (sign_point(Normal, f1r) == false)
+			{
+				PP_b = PP_ab;
+				f1r_b = f1r;
+			}
+			else
+			{
+				PP_a = PP_ab;
+				f1r_a = f1r;
+				a = V.r;
+			}
+
+			calculation_potential(first_variant, M_oblast, p, PP_a, eps_nearest);
+
+			if (vrn2 > 1000)
+			{
+				looping++;
+				return 99999;
+			}
+			vrn2++;
+
+
+		} while (f1r_length / kB > delta);
+		//		(abs((P_U0 - PP.U) / kB) > delta)  (Gradient.length / kB > delta)
+
+*/
+
+/*
+double x_k_optimozation(vector<Molekula>  &M_oblast, Variety_of_molecules first_variant[], Potential &PP_a, Potential &PP_b, int p, double x_k, double &f1r_length, Vector3 &f1r_a, Vector3 &f1r_b)
+{
+	Vector3 f1r(0, 0, 0);
+	f1r_a = f1r;
+	f1r_b = f1r;
+	double r_ab;
+
+	for (int i = 0; i < M_oblast.size(); i++)
+	{
+		f1r_a.x = f1r_a.x - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_a.x - M_oblast[i].x) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP_a.x - M_oblast[i].x), 2.0) + pow((PP_a.y - M_oblast[i].y), 2.0) + pow((PP_a.z - M_oblast[i].z), 2.0), -7.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_a.x - M_oblast[i].x) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP_a.x - M_oblast[i].x), 2.0) + pow((PP_a.y - M_oblast[i].y), 2.0) + pow((PP_a.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r_a.y = f1r_a.y - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_a.y - M_oblast[i].y) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP_a.x - M_oblast[i].x), 2.0) + pow((PP_a.y - M_oblast[i].y), 2.0) + pow((PP_a.z - M_oblast[i].z), 2.0), -7.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_a.y - M_oblast[i].y) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP_a.x - M_oblast[i].x), 2.0) + pow((PP_a.y - M_oblast[i].y), 2.0) + pow((PP_a.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r_a.z = f1r_a.z - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_a.z - M_oblast[i].z) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP_a.x - M_oblast[i].x), 2.0) + pow((PP_a.y - M_oblast[i].y), 2.0) + pow((PP_a.z - M_oblast[i].z), 2.0), -7.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_a.z - M_oblast[i].z) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP_a.x - M_oblast[i].x), 2.0) + pow((PP_a.y - M_oblast[i].y), 2.0) + pow((PP_a.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r_b.x = f1r_b.x - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_b.x - M_oblast[i].x) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP_b.x - M_oblast[i].x), 2.0) + pow((PP_b.y - M_oblast[i].y), 2.0) + pow((PP_b.z - M_oblast[i].z), 2.0), -7.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_b.x - M_oblast[i].x) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP_b.x - M_oblast[i].x), 2.0) + pow((PP_b.y - M_oblast[i].y), 2.0) + pow((PP_b.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r_b.y = f1r_b.y - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_b.y - M_oblast[i].y) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP_b.x - M_oblast[i].x), 2.0) + pow((PP_b.y - M_oblast[i].y), 2.0) + pow((PP_b.z - M_oblast[i].z), 2.0), -7.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_b.y - M_oblast[i].y) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP_b.x - M_oblast[i].x), 2.0) + pow((PP_b.y - M_oblast[i].y), 2.0) + pow((PP_b.z - M_oblast[i].z), 2.0), -4.0);
+
+		f1r_b.z = f1r_b.z - 48 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_b.z - M_oblast[i].z) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 12.0) * pow(pow((PP_b.x - M_oblast[i].x), 2.0) + pow((PP_b.y - M_oblast[i].y), 2.0) + pow((PP_b.z - M_oblast[i].z), 2.0), -7.0) + 24 * pow(M_oblast[i].eps * first_variant[p].eps, 0.5) * (PP_b.z - M_oblast[i].z) * pow((M_oblast[i].sigm + first_variant[p].sigm) / 2.0, 6.0) * pow(pow((PP_b.x - M_oblast[i].x), 2.0) + pow((PP_b.y - M_oblast[i].y), 2.0) + pow((PP_b.z - M_oblast[i].z), 2.0), -4.0);
+	}
+	r_ab = pow((pow((PP_a.x - PP_b.x), 2.0) + pow((PP_a.y - PP_b.y), 2.0) + pow((PP_a.z - PP_b.z), 2.0)), 1 / 2.0);
+
+	f1r_a.Vector_length();
+	f1r_b.Vector_length();
+//	f1r_length = f1r_a.length;
+	return x_k - (f1r_a.length / (f1r_a.length - f1r_b.length)) * r_ab;
+}
+*/
+
+//			U.r = PP.r;
+//			U.fi = PP.fi;
+//			U.teta = PP.teta;
+//			U.x = PP.x;
+//			U.y = PP.y;
+//			U.z = PP.z;
+
+//			PP_a = PP_ab;
+//			calculation_potential(first_variant, M_oblast, p, PP_ab, eps_nearest);
+//			calculation_gradient(M_oblast, first_variant, Gradient, PP, p);
+
+//			if (P_U0 < PP_ab.U)
+//			{
+//				d_r = (d_r / 2.0) * (-1);
+//				PP_b = PP_ab;
+//			}
+/*
+
+			RRS.push_back(Rss);
+			RRS[vrn].number_step = vrn;
+			RRS[vrn].Vr = V.r;
+			RRS[vrn].U = PP_ab.U / kB;
+			RRS[vrn].Gradient_lenght = Gradient.length / kB;
+			RRS[vrn].Grad_x = Gradient.x / kB;
+			RRS[vrn].Grad_y = Gradient.y / kB;
+			RRS[vrn].Grad_z = Gradient.z / kB;
+			RRS[vrn].x = PP_ab.x;
+			RRS[vrn].y = PP_ab.y;
+			RRS[vrn].z = PP_ab.z;
+			RRS[vrn].teta = PP_ab.teta;
+			RRS[vrn].fi = PP_ab.fi;
+			RRS[vrn].r = PP_ab.r;
+			for (int i = 0; i < M_oblast.size(); i++)
+			{
+				RRS[vrn].r_u.push_back(pow((pow((PP_ab.x - M_oblast[i].x), 2.0) + pow((PP_ab.y - M_oblast[i].y), 2.0) + pow((PP_ab.z - M_oblast[i].z), 2.0)), 1 / 2.0));
+			}
+*/
+
+/*
+		do
+		{
+
+			V.r = x_k_optimozation(M_oblast, first_variant, PP, p, V.r, f1r_length);
+//			x_optimozation(M_oblast, first_variant, PP, p, X_k, f1r);
+
+//			X_k.Vector_length();
+//			V.r = X_k.length;
+			V.newx();
+			V.newy();
+			V.newz();
+
+			PP.x = V.x + U.x;
+			PP.y = V.y + U.y;
+			PP.z = V.z + U.z;
+			PP.newfi();
+			PP.newteta();
+			PP.newr();
+
+			U.r = PP.r;
+			U.fi = PP.fi;
+			U.teta = PP.teta;
+			U.x = PP.x;
+			U.y = PP.y;
+			U.z = PP.z;
+
+			RRS.push_back(Rss);
+			RRS[vrn].number_step = vrn;
+			RRS[vrn].Vr = V.r;
+			RRS[vrn].U = PP.U / kB;
+			RRS[vrn].Gradient_lenght = Gradient.length / kB;
+			RRS[vrn].Grad_x = Gradient.x / kB;
+			RRS[vrn].Grad_y = Gradient.y / kB;
+			RRS[vrn].Grad_z = Gradient.z / kB;
+			RRS[vrn].x = PP.x;
+			RRS[vrn].y = PP.y;
+			RRS[vrn].z = PP.z;
+			RRS[vrn].teta = PP.teta;
+			RRS[vrn].fi = PP.fi;
+			RRS[vrn].r = PP.r;
+			for (int i = 0; i < M_oblast.size(); i++)
+			{
+				RRS[vrn].r_u.push_back(pow((pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0)), 1 / 2.0));
+			}
+
+			vrn++;
+
+		} while (f1r_length / kB > delta );
+
+*/
+
+/*
+		do
+		{
+
+//			V.r = x_k_optimozation(M_oblast, first_variant, PP, p, V.r, f1r_length);
+			x_optimozation(M_oblast, first_variant, PP, p, X_k, f1r);
+
+			X_k.Vector_length();
+			V.r = X_k.length;
+			V.newx();
+			V.newy();
+			V.newz();
+
+			PP.x = X_k.x + U.x;
+			PP.y = X_k.y + U.y;
+			PP.z = X_k.z + U.z;
+			PP.newfi();
+			PP.newteta();
+			PP.newr();
+
+			U.r = PP.r;
+			U.fi = PP.fi;
+			U.teta = PP.teta;
+			U.x = PP.x;
+			U.y = PP.y;
+			U.z = PP.z;
+
+			RRS.push_back(Rss);
+			RRS[vrn].number_step = vrn;
+			RRS[vrn].Vr = V.r;
+			RRS[vrn].U = PP.U / kB;
+			RRS[vrn].Gradient_lenght = Gradient.length / kB;
+			RRS[vrn].Grad_x = Gradient.x / kB;
+			RRS[vrn].Grad_y = Gradient.y / kB;
+			RRS[vrn].Grad_z = Gradient.z / kB;
+			RRS[vrn].x = PP.x;
+			RRS[vrn].y = PP.y;
+			RRS[vrn].z = PP.z;
+			RRS[vrn].teta = PP.teta;
+			RRS[vrn].fi = PP.fi;
+			RRS[vrn].r = PP.r;
+			for (int i = 0; i < M_oblast.size(); i++)
+			{
+				RRS[vrn].r_u.push_back(pow((pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0)), 1 / 2.0));
+			}
+
+			vrn++;
+
+		} while (abs(f1r.x / kB) > delta && abs(f1r.y / kB) > delta && abs(f1r.z / kB) > delta);
+
+*/
+
+/*//		d_r = 0.1;
+		do
+		{
+			V.r = abs(V.r + d_r);
+			V.newx();
+			V.newy();
+			V.newz();
+
+			PP.x = V.x + U.x;
+			PP.y = V.y + U.y;
+			PP.z = V.z + U.z;
+			PP.newfi();
+			PP.newteta();
+			PP.newr();
+
+//			U.r = PP.r;
+//			U.fi = PP.fi;
+//			U.teta = PP.teta;
+//			U.x = PP.x;
+//			U.y = PP.y;
+//			U.z = PP.z;
+
+			P_U0 = PP.U;
+			calculation_potential(first_variant, M_oblast, p, PP, eps_nearest);
+//			calculation_gradient(M_oblast, first_variant, Gradient, PP, p);
+
+			if (P_U0 < PP.U)
+			{
+				d_r = (d_r / 2.0) * (-1);
+			}
+
+			RRS.push_back(Rss);
+			RRS[vrn].number_step = vrn;
+			RRS[vrn].Vr = V.r;
+			RRS[vrn].U = PP.U / kB;
+			RRS[vrn].Gradient_lenght = Gradient.length / kB;
+			RRS[vrn].Grad_x = Gradient.x / kB;
+			RRS[vrn].Grad_y = Gradient.y / kB;
+			RRS[vrn].Grad_z = Gradient.z / kB;
+			RRS[vrn].x = PP.x;
+			RRS[vrn].y = PP.y;
+			RRS[vrn].z = PP.z;
+			RRS[vrn].teta = PP.teta;
+			RRS[vrn].fi = PP.fi;
+			RRS[vrn].r = PP.r;
+			for (int i = 0; i < M_oblast.size(); i++)
+			{
+				RRS[vrn].r_u.push_back(pow((pow((PP.x - M_oblast[i].x), 2.0) + pow((PP.y - M_oblast[i].y), 2.0) + pow((PP.z - M_oblast[i].z), 2.0)), 1 / 2.0));
+			}
+
+			if (vrn > 1000)
+			{
+				looping++;
+				return 99999;
+			}
+			vrn++;
+
+
+		} while (abs((P_U0 - PP.U) / kB) > delta);
+//		(abs((P_U0 - PP.U) / kB) > delta)  (Gradient.length / kB > delta)
+*/
+
+/*
+	double P_U0 = 0;
+	int nn, s_couter = 1;
+//	int N, n, l, N_a, N_b, nn, gr;
+//	double alpha, beta, d_beta, d_alpha, S = 0, d_r;
+	double S = 0, d_r, sigm_avg, eps_avg, eps_nearest, eps_nearest2, rs[] = { 0,0 }, a = 0, b = 0, c = 0;
+//	vector<Potential> P(0);
+	vector<Molekula> M_oblast(0);
+	vector<Rs> RS;
+	Rs Rss;
+	Potential PP, PP2, PP_6, PP_12;
+	Vector3 Gradient, Gradient2, Gradient_6, Gradient_12, U, V, U2, V2;
+
+	
+	N_a = 4;
+	N_b = 8;
+	d_beta = 360.0 / N_b;
+	d_alpha = 180.0 / N_a;
+	N = (N_a - 1) * N_b + 3;
+
+
+
+	if (p==467)
+	{
+		Nr = 5;
+	}
+	else
+	{
+		Nr = 100;
+	}
+
+//	Nr = 5;
+	gr = 0;
+
+
+d_r = dr;
+nn = 0;
+
+oblast(M, r, fi, teta, M_oblast, number_f);
+
+
+do
+	{
+		nn++;
+		n = 0;
+		l = 0;
+		alpha = 0;
+		beta = 0;
+		P.clear();
+
+
+		for (int ii = 0; ii < N; ii++)
+		{
+			P.push_back(PP);
+			n++;
+
+			switch (ii)
+			{
+			case 0:
+				P[ii - l].r = r;
+				P[ii - l].fi = fi;
+				P[ii - l].teta = teta;
+				calculation_potential(first_variant, M_oblast, r, fi, teta, p, P, ii, l);
+				break;
+			case 1:
+				P[ii - l].r = r + first_variant[562].radius / d_r;
+				P[ii - l].fi = fi;
+				P[ii - l].teta = teta;
+				calculation_potential(first_variant, M_oblast, r, fi, teta, p, P, ii, l);
+				break;
+			case 2:
+				P[ii - l].r = r - first_variant[562].radius / d_r;
+				P[ii - l].fi = fi;
+				P[ii - l].teta = teta;
+				calculation_potential(first_variant, M_oblast, r, fi, teta, p, P, ii, l);
+				break;
+			default:
+				for (int b = 0; b < N_b; b++)
+				{
+					beta = d_beta * b;
+					for (int a = 1; a < N_a; a++)
+					{
+						alpha = d_alpha * a;
+						P[ii - l].r = pow(pow(r, 2.0) + pow(first_variant[562].radius / d_r, 2.0) - 2 * r * (first_variant[562].radius / d_r) * cos(alpha * M_PI / 180.0), 1 / 2.0);
+						P[ii - l].fi = fi + sin(beta * M_PI / 180.0)*acos((pow(r, 2.0) + pow(P[ii - l].r, 2.0) - pow(first_variant[562].radius / d_r, 2.0)) / (2 * r * P[ii - l].r));
+						P[ii - l].teta = teta + cos(beta * M_PI / 180.0)*acos((pow(r, 2.0) + pow(P[ii - l].r, 2.0) - pow(first_variant[562].radius / d_r, 2.0)) / (2 * r * P[ii - l].r));
+						calculation_potential(first_variant, M_oblast, r, fi, teta, p, P, ii, l);
+						ii++;
+						if (ii < N)
+						{
+							P.push_back(PP);
+						}
+					}
+				}
+				break;
+			}
+			//			if (ii == N - 1)
+			//			{
+			//				l = 0;
+			//			}
+		}
+		gr++;
+		d_r = d_r * 1.01;
+
+
+		if (P.size() == 0)
+		{
+			if (abs(P_U0 / kB) > 1000000 || (abs(P_U0 / kB) > 0 && abs(P_U0 / kB) < 0.0001))
+			{
+				P_U0 = 0;
+				if (p != 467)
+				{
+					picture_color_bind(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+					if (-P_U0 / kB <= 250)
+						picture_color_bind_350(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+					if (-P_U0 / kB > 250 && -P_U0 / kB <= 450)
+						picture_color_bind_350_500(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+					if (-P_U0 / kB > 450 && -P_U0 / kB <= 1000)
+						picture_color_bind_500_700(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+					if (-P_U0 / kB > 1000)
+						picture_color_bind_700(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+				}
+//				picture(M, Bagg_counter + 100000);
+//				picture_x(M, Bagg_counter + 100000);
+//				picture_3x(M, Bagg_counter + 100000);
+//				picture_y(M, Bagg_counter + 100000);
+//				picture_3y(M, Bagg_counter + 100000);
+//				picture_z(M, Bagg_counter + 100000);
+//				picture_3z(M, Bagg_counter + 100000);
+//				picture_bagg(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r * cos(teta));
+			}
+			else
+			{
+				cout << "Warning" << endl;
+			}
+
+			return P_U0;
+		}
+
+		if (false && P.size() == 1 && Nr <= gr)
+		{
+//			if ((abs(P[0].U / kB) > 1000000 || (abs(P[0].U / kB) > 0 && abs(P[0].U / kB) < 0.0001)) && (abs(P_U0 / kB) < 10000000 || (abs(P_U0 / kB) > 0 && abs(P_U0 / kB) > 0.00000001)))
+//			{
+//				P_U0 = P[0].U;
+//			}
+
+			N_step_P.open("N_step_P.txt", ios_base::app);
+			N_step_P << nn << "\t";
+			N_step_P.clear();
+			N_step_P.close();
+			P_U0 = P[0].U;
+			if (p != 467)
+			{
+				picture_color_bind(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+				if (-P_U0 / kB <= 250)
+					picture_color_bind_350(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+				if (-P_U0 / kB > 250 && -P_U0 / kB <= 450)
+					picture_color_bind_350_500(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+				if (-P_U0 / kB > 450 && -P_U0 / kB <= 1000)
+					picture_color_bind_500_700(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+				if (-P_U0 / kB > 1000)
+					picture_color_bind_700(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+			}
+			return P_U0;
+		}
+		double u0;
+		u0 = P[0].U;
+		sort(P.begin(), P.end(), sort_U); // сортировка по наименьшиму потенциалу
+//		if (abs(P[0].U / kB - u0 / kB) < 0.001 && Nr <= gr)
+//		if (abs((P[0].U / kB) / (u0 / kB) - 1) < 0.01 && Nr <= gr)
+//		if (P[0].U == u0 && Nr <= gr)
+		if (P[0].U == u0 && Nr <= gr)
+		{
+			P_U0 = P[0].U;
+			if (p != 467)
+			{
+				picture_color_bind(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+				if (-P_U0 / kB <= 250)
+					picture_color_bind_350(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+				if (-P_U0 / kB > 250 && -P_U0 / kB <= 450)
+					picture_color_bind_350_500(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+				if (-P_U0 / kB > 450 && -P_U0 / kB <= 1000)
+					picture_color_bind_500_700(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+
+				if (-P_U0 / kB > 1000)
+					picture_color_bind_700(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r*cos(teta), P_U0);
+			}
+			N_step_P.open("N_step_P.txt", ios_base::app);
+			N_step_P << gr << "\t";
+			N_step_P.clear();
+			N_step_P.close();
+
+			if (p != 467)
+			{
+				P_U_out.open("Potencial_K.txt", ios_base::app);
+				P_U_out << P_U0 / kB << endl;
+
+
+				if (abs(P_U0 / kB) > 1000000 || (abs(P_U0 / kB) > 0 && abs(P_U0 / kB) < 0.0001))
+				{
+					cout << "Warning" << endl;
+				}
+				P_U_out.clear();
+				P_U_out.close();
+			}
+
+			return P_U0;
+		}
+		S = S + pow(pow(r * sin(teta)*cos(fi) - P[0].x, 2.0) + pow(r * sin(teta)*sin(fi) - P[0].y, 2.0) + pow(r * cos(teta) - P[0].z, 2.0), 1 / 2.0);
+		r = P[0].r;
+		fi = P[0].fi;
+		teta = P[0].teta;
+		if (S>3 * sigm_MAX)
+		{
+			S = 0;
+			oblast(M, r, fi, teta, M_oblast, number_f);
+		}
+	} while (true);
+
+
+	//	U = 4 * eps*(pow(sigm / r, 12) - pow(sigm / r, 6));
+*/
+
+/*
+if ((Gradient.length / kB > 100 || (Gradient.length / kB <= 5 && PP.U / kB > -eps_nearest / kB / 1.5)) && PP.U < 0)
+		{
+			V.r = 0.5;
+		}
+		else
+			if ((Gradient.length / kB > 100 || (Gradient.length / kB > 5 && PP.U / kB > -eps_nearest / kB / 1.5)) && PP.U < 0)
+			{
+				V.r = abs(1.0 / log10(Gradient.length / kB));
+			}
+			else
+				if ((Gradient.length / kB >= 10 && Gradient.length / kB < 100) && PP.U < 0)
+				{
+					V.r = abs(pow(0.1 / (Gradient.length / kB), 2.0) - 2 * pow(0.1 / (Gradient.length / kB), 1.0));
+				}
+				else
+					if ((Gradient.length / kB >= 2 && Gradient.length / kB < 10) && PP.U < 0)
+					{
+						V.r = abs(pow(0.1 / (Gradient.length / kB), 4.0) - 2 * pow(0.1 / (Gradient.length / kB), 2.0));
+					}
+					else
+						if ((Gradient.length / kB >= 1 && Gradient.length / kB < 2) && PP.U < 0)
+						{
+							V.r = abs(pow(0.1 / (Gradient.length / kB), 6.0) - 2 * pow(0.1 / (Gradient.length / kB), 3.0));
+						}
+						else
+							if ((Gradient.length / kB > 0.1 && Gradient.length / kB < 1) && PP.U < 0)
+							{
+								V.r = abs(pow(0.01 / (Gradient.length / kB), 12.0) - 2 * pow(0.01 / (Gradient.length / kB), 6.0));
+							}
+							else
+								if (PP.U > 0)
+								{
+									s_couter++;
+									V.r = 0.1 * s_couter;
+								}
+								else
+								{
+									V.r = 0.05;
+								}
+*/
+
+/*
+		V2.r = first_variant[562].radius / d_r;
+		V2.fi = Gradient2.fi;
+		V2.teta = Gradient2.teta;
+		V2.newx();
+		V2.newy();
+		V2.newz();
+
+		PP2.x = V2.x + U2.x;
+		PP2.y = V2.y + U2.y;
+		PP2.z = V2.z + U2.z;
+		PP2.newfi();
+		PP2.newteta();
+		PP2.newr();
+
+		U2.r = PP2.r;
+		U2.fi = PP2.fi;
+		U2.teta = PP2.teta;
+		U2.x = PP2.x;
+		U2.y = PP2.y;
+		U2.z = PP2.z;
+
+//		P_U0 = PP2.U;
+
+		calculation_potential(first_variant, M_oblast, p, PP2, eps_nearest2);
+
+		d_r = d_r * 1.1;*/
+
+/*
+				if (PP.U < P_U0)
+				{
+					P_U0 = PP.U;
+				}
+				else
+				{
+					s_couter++;
+					V.x = Gradient.a;
+					V.y = Gradient.b;
+					V.z = Gradient.c;
+					V.newfi();
+					V.newteta();
+					V.newr();
+
+					if ((Gradient.length / kB > 100 || PP.U / kB > -eps_nearest / kB / 1.5) && PP.U < 0)
+					{
+						V.r = 1.0 / log10(Gradient.length / kB) * (1.0 / s_couter);
+					}
+					else
+						if ((Gradient.length / kB > 0.1 && Gradient.length / kB < 100) || PP.U > 0)
+						{
+							V.r = abs(pow(0.1 / (Gradient.length / kB), 6.0) - 2 * pow(0.1 / (Gradient.length / kB), 3.0)) * (1.0 / s_couter);
+						}
+						else
+						{
+							V.r = 0.1 * (1.0 / s_couter);
+						}
+
+					V.newx();
+					V.newy();
+					V.newz();
+
+					PP.x = V.x + U.x;
+					PP.y = V.y + U.y;
+					PP.z = V.z + U.z;
+					PP.newfi();
+					PP.newteta();
+					PP.newr();
+
+					U.r = PP.r;
+					U.fi = PP.fi;
+					U.teta = PP.teta;
+					U.x = PP.x;
+					U.y = PP.y;
+					U.z = PP.z;
+					calculation_potential(first_variant, M_oblast, p, PP, eps_nearest);
+					P_U0 = PP.U;
+				}
+
+		*/

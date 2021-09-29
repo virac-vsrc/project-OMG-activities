@@ -1,0 +1,129 @@
+#include "stdafx.h"
+#include <string>
+#include <math.h>
+#include <vector>
+#include <deque>
+using namespace std;
+
+
+class Coordinate_System
+{
+	public:
+		Coordinate_System()
+		{
+			Z=0;
+			N=21;
+			NN=2; 
+			centr=(N-1)/2;
+	
+			for(int k=0;k<N;k++)
+			{
+				Y.push_back(Z);
+			}
+			
+			for(int k=0;k<N;k++)
+			{
+				X.push_back(Y);
+			}
+
+			for(int k=0;k<N;k++)
+			{
+				coordinate_grid_filling.push_back(X);
+			}
+
+
+			for(int i=0;i<N;i++)
+			{
+				for(int j=0;j<N;j++)
+				{
+					for(int k=0;k<N;k++)
+					{
+						coordinate_grid_filling[i][j][k]=0;
+					}
+				}
+			}
+		}
+
+		~Coordinate_System(){}
+
+		int centrir ()
+		{
+
+			for(int k=0;k<NN/2;k++)
+			{
+				coordinate_grid_filling.push_back(X);
+			}
+
+			for(int k=0;k<NN/2;k++)
+			{
+				coordinate_grid_filling.push_front(X);
+			}
+
+			N=N+NN;
+
+			for(int k=0;k<N;k++)
+			{
+				for(int b=0;b<NN/2;b++)
+				{
+					coordinate_grid_filling[k].push_back(Y);
+				}
+
+				for(int b=0;b<NN/2;b++)
+				{
+					coordinate_grid_filling[k].push_front(Y);
+				}
+			}
+
+			for(int j=0;j<N;j++)
+			{
+				for(int k=0;k<N;k++)
+				{
+					for(int b=0;b<NN/2;b++)
+					{
+						coordinate_grid_filling[j][k].push_back(Z);
+					}
+				}
+
+				for(int k=0;k<N;k++)
+				{
+					for(int b=0;b<NN/2;b++)
+					{
+						coordinate_grid_filling[j][k].push_front(Z);
+					}
+				}
+			}
+
+
+			for(int k=0;k<NN;k++)
+			{
+				Y.push_back(Z);
+			}
+			
+			for(int k=0;k<N-NN;k++)
+			{
+				for(int b=0;b<NN;b++)
+				{
+					X[k].push_back(Z);
+				}
+
+			}
+
+			for(int k=0;k<NN;k++)
+			{
+				X.push_back(Y);
+			}
+
+		
+
+			centr=(N-1)/2;// половина размера массива координат
+			return centr;
+		}
+
+
+		int N, centr, NN; 
+		deque<deque<deque<bool>>> coordinate_grid_filling;
+		deque<deque<bool>> X;
+		deque<bool> Y, YY;
+		bool Z;
+	//	bool ***coordinate_grid_filling;
+};

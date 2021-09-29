@@ -1,0 +1,7 @@
+#pragma once
+
+#include "stdafx.h"
+#include <math.h>
+using namespace std;
+
+ofstream bagout;

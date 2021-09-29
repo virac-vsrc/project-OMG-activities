@@ -1,0 +1,2857 @@
+#include "stdafx.h"
+#include <string>
+#include <iostream>
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include <istream>
+//#include "Molekula.h"
+using namespace std;
+
+
+void picture(vector<Molekula>  &M, int P); // новая функция для генериции файлов по которым строится графическое изображение
+void picture_x(vector<Molekula>  &M, int P); // новая функция для генериции файлов по которым строится графическое изображение
+void picture_3x(vector<Molekula>  &M, int P); // новая функция для генериции файлов по которым строится графическое изображение
+void picture_y(vector<Molekula>  &M, int P); // новая функция для генериции файлов по которым строится графическое изображение
+void picture_3y(vector<Molekula>  &M, int P); // новая функция для генериции файлов по которым строится графическое изображение
+void picture_z(vector<Molekula>  &M, int P); // новая функция для генериции файлов по которым строится графическое изображение
+void picture_3z(vector<Molekula>  &M, int P); // новая функция для генериции файлов по которым строится графическое изображение
+void picture_9(vector<Molekula>  &M, int P);
+void picture_bagg(double x, double y, double z);
+void picture_color_bind(double x, double y, double z, double P0);
+void picture_color_bind_350(double x, double y, double z, double P0);
+void picture_color_bind_350_500(double x, double y, double z, double P0);
+void picture_color_bind_500_700(double x, double y, double z, double P0);
+void picture_color_bind_700(double x, double y, double z, double P0);
+void picture_color_bind(vector<Molekula>  &M);
+void picture_color_bind_350(vector<Molekula>  &M);
+void picture_color_bind_350_500(vector<Molekula>  &M);
+void picture_color_bind_500_700(vector<Molekula>  &M);
+void picture_color_bind_700(vector<Molekula>  &M);
+
+
+void picture(vector<Molekula>  &M, int P)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_out;
+	ostringstream PPP;
+	string picture, PP;
+	PPP<<P;
+	PP=PPP.str();
+	picture.append(PP);
+	picture.append("_picture.pov");
+	picture_out.open(picture, ios::out);
+//	if(f==0)
+//	{
+		picture_out << " #include \"colors.inc\"" << endl << "camera {location <50, 50, 50> look_at  <0, 0, 0>}" << endl;
+		picture_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+		picture_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+//	}
+//	int j=0;
+	for(int i=0;i<=M.size() - 1;i++)
+	{
+//		j++;
+		if (M[i].name=="G0")
+		{
+			picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z <<">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " <<endl;
+		}
+		else
+		{
+			picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z <<">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " <<endl;
+		}
+	}
+	picture_out.clear();
+	picture_out.close();
+}
+
+void picture_x(vector<Molekula>  &M, int P)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_out;
+	ostringstream PPP;
+	string picture, PP;
+	PPP << P;
+	PP = PPP.str();
+	picture.append(PP);
+	picture.append("_picture_x.pov");
+	picture_out.open(picture, ios::out);
+	//	if(f==0)
+	//	{
+	picture_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+	//	}
+	//	int j=0;
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x)<2))
+		{
+			//		j++;
+			if (M[i].name == "G0")
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+			else
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+	picture_out.clear();
+	picture_out.close();
+}
+
+void picture_3x(vector<Molekula>  &M, int P)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_out;
+	ostringstream PPP;
+	string picture, PP;
+	PPP << P;
+	PP = PPP.str();
+	picture.append(PP);
+	picture.append("_picture_3x.pov");
+	picture_out.open(picture, ios::out);
+	//	if(f==0)
+	//	{
+	picture_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+	//	}
+	//	int j=0;
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x)<9))
+		{
+			//		j++;
+			if (M[i].name == "G0")
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+			else
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+	picture_out.clear();
+	picture_out.close();
+}
+
+void picture_y(vector<Molekula>  &M, int P)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_out;
+	ostringstream PPP;
+	string picture, PP;
+	PPP << P;
+	PP = PPP.str();
+	picture.append(PP);
+	picture.append("_picture_y.pov");
+	picture_out.open(picture, ios::out);
+	//	if(f==0)
+	//	{
+	picture_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+	//	}
+	//	int j=0;
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y)<2))
+		{
+			//		j++;
+			if (M[i].name == "G0")
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+			else
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+	picture_out.clear();
+	picture_out.close();
+}
+
+void picture_3y(vector<Molekula>  &M, int P)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_out;
+	ostringstream PPP;
+	string picture, PP;
+	PPP << P;
+	PP = PPP.str();
+	picture.append(PP);
+	picture.append("_picture_3y.pov");
+	picture_out.open(picture, ios::out);
+	//	if(f==0)
+	//	{
+	picture_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+	//	}
+	//	int j=0;
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y)<9))
+		{
+			//		j++;
+			if (M[i].name == "G0")
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+			else
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+	picture_out.clear();
+	picture_out.close();
+}
+
+void picture_z(vector<Molekula>  &M, int P)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_out;
+	ostringstream PPP;
+	string picture, PP;
+	PPP << P;
+	PP = PPP.str();
+	picture.append(PP);
+	picture.append("_picture_z.pov");
+	picture_out.open(picture, ios::out);
+	//	if(f==0)
+	//	{
+	picture_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+	//	}
+	//	int j=0;
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z)<2))
+		{
+			//		j++;
+			if (M[i].name == "G0")
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+			else
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+	picture_out.clear();
+	picture_out.close();
+}
+
+void picture_3z(vector<Molekula>  &M, int P)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_out;
+	ostringstream PPP;
+	string picture, PP;
+	PPP << P;
+	PP = PPP.str();
+	picture.append(PP);
+	picture.append("_picture_3z.pov");
+	picture_out.open(picture, ios::out);
+	//	if(f==0)
+	//	{
+	picture_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+	//	}
+	//	int j=0;
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z)<9))
+		{
+			//		j++;
+			if (M[i].name == "G0")
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+			else
+			{
+				picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+	picture_out.clear();
+	picture_out.close();
+}
+
+void picture_9(vector<Molekula>  &M, int P)
+{
+//	int P = 99999;
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_out;
+	ostringstream PPP;
+	string picture, PP;
+	PPP << P;
+	PP = PPP.str();
+	picture.append("Ray_");
+	picture.append(PP);
+	picture.append("_picture.pov");
+	picture_out.open(picture, ios::out);
+	//	if(f==0)
+	//	{
+	picture_out << " #include \"colors.inc\"" << endl << "camera {location <75, 75, 75> look_at  <0, 0, 0>}" << endl;
+	picture_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+	//	}
+	//	int j=0;
+	for (int i = 0; i < M.size() - 1; i++)
+	{
+		//		j++;
+		if (M[i].name == "G0")
+		{
+			picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color Yellow }}} " << endl;
+		}
+		else
+		{
+			picture_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color Yellow }}} " << endl;
+		}
+	}
+	picture_out.clear();
+	picture_out.close();
+}
+
+void picture_bagg(double x, double y, double z)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_baggout;
+
+	picture_baggout.open("Bagg_picture.pov", ios::app);	
+
+	picture_baggout << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color Red }}} " << endl;
+
+	
+	picture_baggout.clear();
+	picture_baggout.close();
+}
+
+void picture_color_bind(vector<Molekula>  &M)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_out;
+	picture_color_bind_out.open("Picture_color_bind.pov", ios::app);
+
+
+
+	picture_color_bind_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if (M[i].name == "G0")
+		{
+			picture_color_bind_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+		}
+	}
+
+	picture_color_bind_out.clear();
+	picture_color_bind_out.close();
+
+	ofstream picture_color_bind_3x_out;
+	picture_color_bind_3x_out.open("Picture_color_bind_3x.pov", ios::app);
+
+
+
+	picture_color_bind_3x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_3x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_3x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_3x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_3x_out.clear();
+	picture_color_bind_3x_out.close();
+
+	ofstream picture_color_bind_3y_out;
+	picture_color_bind_3y_out.open("Picture_color_bind_3y.pov", ios::app);
+
+
+
+	picture_color_bind_3y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_3y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_3y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_3y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_3y_out.clear();
+	picture_color_bind_3y_out.close();
+
+	ofstream picture_color_bind_3z_out;
+	picture_color_bind_3z_out.open("Picture_color_bind_3z.pov", ios::app);
+
+
+
+	picture_color_bind_3z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_3z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_3z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_3z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_3z_out.clear();
+	picture_color_bind_3z_out.close();
+
+
+	ofstream picture_color_bind_1x_out;
+	picture_color_bind_1x_out.open("Picture_color_bind_1x.pov", ios::app);
+
+
+
+	picture_color_bind_1x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_1x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_1x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_1x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_1x_out.clear();
+	picture_color_bind_1x_out.close();
+
+	ofstream picture_color_bind_1y_out;
+	picture_color_bind_1y_out.open("Picture_color_bind_1y.pov", ios::app);
+
+
+
+	picture_color_bind_1y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_1y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_1y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_1y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_1y_out.clear();
+	picture_color_bind_1y_out.close();
+
+	ofstream picture_color_bind_1z_out;
+	picture_color_bind_1z_out.open("Picture_color_bind_1z.pov", ios::app);
+
+
+
+	picture_color_bind_1z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_1z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_1z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_1z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_1z_out.clear();
+	picture_color_bind_1z_out.close();
+
+}
+
+void picture_color_bind_350(vector<Molekula>  &M)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_350_out;
+	picture_color_bind_350_out.open("Picture_color_bind_350.pov", ios::app);
+
+
+
+	picture_color_bind_350_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if (M[i].name == "G0")
+		{
+			picture_color_bind_350_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+		}
+	}
+
+	picture_color_bind_350_out.clear();
+	picture_color_bind_350_out.close();
+
+	ofstream picture_color_bind_350_3x_out;
+	picture_color_bind_350_3x_out.open("Picture_color_bind_350_3x.pov", ios::app);
+
+
+
+	picture_color_bind_350_3x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_3x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_3x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_3x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_3x_out.clear();
+	picture_color_bind_350_3x_out.close();
+
+	ofstream picture_color_bind_350_3y_out;
+	picture_color_bind_350_3y_out.open("Picture_color_bind_350_3y.pov", ios::app);
+
+
+
+	picture_color_bind_350_3y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_3y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_3y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_3y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_3y_out.clear();
+	picture_color_bind_350_3y_out.close();
+
+	ofstream picture_color_bind_350_3z_out;
+	picture_color_bind_350_3z_out.open("Picture_color_bind_350_3z.pov", ios::app);
+
+
+
+	picture_color_bind_350_3z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_3z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_3z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_3z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_3z_out.clear();
+	picture_color_bind_350_3z_out.close();
+
+
+	ofstream picture_color_bind_350_1x_out;
+	picture_color_bind_350_1x_out.open("Picture_color_bind_350_1x.pov", ios::app);
+
+
+
+	picture_color_bind_350_1x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_1x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_1x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_1x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_1x_out.clear();
+	picture_color_bind_350_1x_out.close();
+
+	ofstream picture_color_bind_350_1y_out;
+	picture_color_bind_350_1y_out.open("Picture_color_bind_350_1y.pov", ios::app);
+
+
+
+	picture_color_bind_350_1y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_1y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_1y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_1y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_1y_out.clear();
+	picture_color_bind_350_1y_out.close();
+
+	ofstream picture_color_bind_350_1z_out;
+	picture_color_bind_350_1z_out.open("Picture_color_bind_350_1z.pov", ios::app);
+
+
+
+	picture_color_bind_350_1z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_1z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_1z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_1z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_1z_out.clear();
+	picture_color_bind_350_1z_out.close();
+
+}
+
+void picture_color_bind_350_500(vector<Molekula>  &M)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_350_500_out;
+	picture_color_bind_350_500_out.open("Picture_color_bind_350_500.pov", ios::app);
+
+
+
+	picture_color_bind_350_500_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_500_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_500_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if (M[i].name == "G0")
+		{
+			picture_color_bind_350_500_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+		}
+	}
+
+	picture_color_bind_350_500_out.clear();
+	picture_color_bind_350_500_out.close();
+
+	ofstream picture_color_bind_350_500_3x_out;
+	picture_color_bind_350_500_3x_out.open("Picture_color_bind_350_500_3x.pov", ios::app);
+
+
+
+	picture_color_bind_350_500_3x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_500_3x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_500_3x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_500_3x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_500_3x_out.clear();
+	picture_color_bind_350_500_3x_out.close();
+
+	ofstream picture_color_bind_350_500_3y_out;
+	picture_color_bind_350_500_3y_out.open("Picture_color_bind_350_500_3y.pov", ios::app);
+
+
+
+	picture_color_bind_350_500_3y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_500_3y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_500_3y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_500_3y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_500_3y_out.clear();
+	picture_color_bind_350_500_3y_out.close();
+
+	ofstream picture_color_bind_350_500_3z_out;
+	picture_color_bind_350_500_3z_out.open("Picture_color_bind_350_500_3z.pov", ios::app);
+
+
+
+	picture_color_bind_350_500_3z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_500_3z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_500_3z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_500_3z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_500_3z_out.clear();
+	picture_color_bind_350_500_3z_out.close();
+
+
+	ofstream picture_color_bind_350_500_1x_out;
+	picture_color_bind_350_500_1x_out.open("Picture_color_bind_350_500_1x.pov", ios::app);
+
+
+
+	picture_color_bind_350_500_1x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_500_1x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_500_1x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_500_1x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_500_1x_out.clear();
+	picture_color_bind_350_500_1x_out.close();
+
+	ofstream picture_color_bind_350_500_1y_out;
+	picture_color_bind_350_500_1y_out.open("Picture_color_bind_350_500_1y.pov", ios::app);
+
+
+
+	picture_color_bind_350_500_1y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_500_1y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_500_1y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_500_1y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_500_1y_out.clear();
+	picture_color_bind_350_500_1y_out.close();
+
+	ofstream picture_color_bind_350_500_1z_out;
+	picture_color_bind_350_500_1z_out.open("Picture_color_bind_350_500_1z.pov", ios::app);
+
+
+
+	picture_color_bind_350_500_1z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_350_500_1z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_350_500_1z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_350_500_1z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_350_500_1z_out.clear();
+	picture_color_bind_350_500_1z_out.close();
+
+}
+
+void picture_color_bind_500_700(vector<Molekula>  &M)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_500_out;
+	picture_color_bind_500_out.open("Picture_color_bind_500.pov", ios::app);
+
+
+
+	picture_color_bind_500_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_500_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_500_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if (M[i].name == "G0")
+		{
+			picture_color_bind_500_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+		}
+	}
+
+	picture_color_bind_500_out.clear();
+	picture_color_bind_500_out.close();
+
+	ofstream picture_color_bind_500_3x_out;
+	picture_color_bind_500_3x_out.open("Picture_color_bind_500_3x.pov", ios::app);
+
+
+
+	picture_color_bind_500_3x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_500_3x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_500_3x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_500_3x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_500_3x_out.clear();
+	picture_color_bind_500_3x_out.close();
+
+	ofstream picture_color_bind_500_3y_out;
+	picture_color_bind_500_3y_out.open("Picture_color_bind_500_3y.pov", ios::app);
+
+
+
+	picture_color_bind_500_3y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_500_3y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_500_3y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_500_3y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_500_3y_out.clear();
+	picture_color_bind_500_3y_out.close();
+
+	ofstream picture_color_bind_500_3z_out;
+	picture_color_bind_500_3z_out.open("Picture_color_bind_500_3z.pov", ios::app);
+
+
+
+	picture_color_bind_500_3z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_500_3z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_500_3z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_500_3z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_500_3z_out.clear();
+	picture_color_bind_500_3z_out.close();
+
+
+	ofstream picture_color_bind_500_1x_out;
+	picture_color_bind_500_1x_out.open("Picture_color_bind_500_1x.pov", ios::app);
+
+
+
+	picture_color_bind_500_1x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_500_1x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_500_1x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_500_1x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_500_1x_out.clear();
+	picture_color_bind_500_1x_out.close();
+
+	ofstream picture_color_bind_500_1y_out;
+	picture_color_bind_500_1y_out.open("Picture_color_bind_500_1y.pov", ios::app);
+
+
+
+	picture_color_bind_500_1y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_500_1y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_500_1y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_500_1y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_500_1y_out.clear();
+	picture_color_bind_500_1y_out.close();
+
+	ofstream picture_color_bind_500_1z_out;
+	picture_color_bind_500_1z_out.open("Picture_color_bind_500_1z.pov", ios::app);
+
+
+
+	picture_color_bind_500_1z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_500_1z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_500_1z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_500_1z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_500_1z_out.clear();
+	picture_color_bind_500_1z_out.close();
+
+}
+
+void picture_color_bind_700(vector<Molekula>  &M)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_700_out;
+	picture_color_bind_700_out.open("Picture_color_bind_700.pov", ios::app);
+
+
+
+	picture_color_bind_700_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_700_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_700_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if (M[i].name == "G0")
+		{
+			picture_color_bind_700_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+		}
+	}
+
+	picture_color_bind_700_out.clear();
+	picture_color_bind_700_out.close();
+
+	ofstream picture_color_bind_700_3x_out;
+	picture_color_bind_700_3x_out.open("Picture_color_bind_700_3x.pov", ios::app);
+
+
+
+	picture_color_bind_700_3x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_700_3x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_700_3x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_700_3x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_700_3x_out.clear();
+	picture_color_bind_700_3x_out.close();
+
+	ofstream picture_color_bind_700_3y_out;
+	picture_color_bind_700_3y_out.open("Picture_color_bind_700_3y.pov", ios::app);
+
+
+
+	picture_color_bind_700_3y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_700_3y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_700_3y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_700_3y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_700_3y_out.clear();
+	picture_color_bind_700_3y_out.close();
+
+	ofstream picture_color_bind_700_3z_out;
+	picture_color_bind_700_3z_out.open("Picture_color_bind_700_3z.pov", ios::app);
+
+
+
+	picture_color_bind_700_3z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_700_3z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_700_3z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_700_3z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_700_3z_out.clear();
+	picture_color_bind_700_3z_out.close();
+
+
+	ofstream picture_color_bind_700_1x_out;
+	picture_color_bind_700_1x_out.open("Picture_color_bind_700_1x.pov", ios::app);
+
+
+
+	picture_color_bind_700_1x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_700_1x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_700_1x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_700_1x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_700_1x_out.clear();
+	picture_color_bind_700_1x_out.close();
+
+	ofstream picture_color_bind_700_1y_out;
+	picture_color_bind_700_1y_out.open("Picture_color_bind_700_1y.pov", ios::app);
+
+
+
+	picture_color_bind_700_1y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_700_1y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_700_1y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_700_1y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_700_1y_out.clear();
+	picture_color_bind_700_1y_out.close();
+
+	ofstream picture_color_bind_700_1z_out;
+	picture_color_bind_700_1z_out.open("Picture_color_bind_700_1z.pov", ios::app);
+
+
+
+	picture_color_bind_700_1z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_700_1z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_700_1z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 3))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_700_1z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_700_1z_out.clear();
+	picture_color_bind_700_1z_out.close();
+
+}
+
+/*
+
+void picture_color_bind_3x(vector<Molekula>  &M)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_3x_out;
+	picture_color_bind_3x_out.open("Picture_color_bind_3x.pov", ios::app);
+
+
+
+	picture_color_bind_3x_out << " #include \"colors.inc\"" << endl << "camera {location <105, 0, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_3x_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_3x_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].x) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_3x_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_3x_out.clear();
+	picture_color_bind_3x_out.close();
+
+}
+
+void picture_color_bind_3y(vector<Molekula>  &M)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_3y_out;
+	picture_color_bind_3y_out.open("Picture_color_bind_3y.pov", ios::app);
+
+
+
+	picture_color_bind_3y_out << " #include \"colors.inc\"" << endl << "camera {location <0, 105, 0> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_3y_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_3y_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].y) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_3y_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_3y_out.clear();
+	picture_color_bind_3y_out.close();
+
+}
+
+void picture_color_bind_3z(vector<Molekula>  &M)
+{
+	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_3z_out;
+	picture_color_bind_3z_out.open("Picture_color_bind_3z.pov", ios::app);
+
+
+
+	picture_color_bind_3z_out << " #include \"colors.inc\"" << endl << "camera {location <0, 0, 105> look_at  <0, 0, 0>}" << endl;
+	picture_color_bind_3z_out << "light_source { <15, 15, 55> color White}" << endl << "light_source { <15, 15, -55> color White}" << endl << "light_source { <15, 55, 15> color White}" << endl << "light_source { <15, -55, 15> color White}" << endl << "light_source { <55, 15, 15> color White}" << endl << "light_source { <-55, 15, 15> color White}" << endl;
+	picture_color_bind_3z_out << "light_source { <-15, -15, -55> color White}" << endl << "light_source { <-15, -15, 55> color White}" << endl << "light_source { <-15, -55, -15> color White}" << endl << "light_source { <-15, 55, -15> color White}" << endl << "light_source { <-55, -15, -15> color White}" << endl << "light_source { <55, -15, -15> color White}" << endl;
+
+
+	for (int i = 0; i < M.size(); i++)
+	{
+		if ((abs(M[i].z) < 9))
+		{
+			if (M[i].name == "G0")
+			{
+				picture_color_bind_3z_out << " sphere { <" << M[i].x << "," << M[i].y << "," << M[i].z << ">, " << M[i].radius << " texture { pigment { color " << M[i].color << " }}} " << endl;
+			}
+		}
+	}
+
+	picture_color_bind_3z_out.clear();
+	picture_color_bind_3z_out.close();
+
+}
+
+*/
+
+void picture_color_bind(double x, double y, double z, double P0)
+{
+	double r, g, b, tr;
+//	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_out;
+	picture_color_bind_out.open("Picture_color_bind.pov", ios::app);
+
+	tr = 0.5;
+
+	if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+	{
+		r = (-P0 / kB)*0.001;
+		g = 1;
+		b = 0;
+	}
+	else
+		if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+		{
+			r = 1;
+			g = 1 - (-P0 / kB - 1000)*0.001;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) == 0)
+			{
+				r = 1;
+				g = 1;
+				b = 1;
+			}
+			else
+			{
+				r = 0;
+				g = 0;
+				b = 0;
+			}
+	
+
+	picture_color_bind_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+	picture_color_bind_out.clear();
+	picture_color_bind_out.close();
+
+	if (abs(x) < 9)
+	{
+		ofstream picture_color_bind_3x_out;
+		picture_color_bind_3x_out.open("Picture_color_bind_3x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_3x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_3x_out.clear();
+		picture_color_bind_3x_out.close();
+	}
+
+	if (abs(y) < 9)
+	{
+		ofstream picture_color_bind_3y_out;
+		picture_color_bind_3y_out.open("Picture_color_bind_3y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_3y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_3y_out.clear();
+		picture_color_bind_3y_out.close();
+	}
+
+	if (abs(z) < 9)
+	{
+		ofstream picture_color_bind_3z_out;
+		picture_color_bind_3z_out.open("Picture_color_bind_3z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_3z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_3z_out.clear();
+		picture_color_bind_3z_out.close();
+	}
+
+	if (abs(x) < 3)
+	{
+		ofstream picture_color_bind_1x_out;
+		picture_color_bind_1x_out.open("Picture_color_bind_1x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_1x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_1x_out.clear();
+		picture_color_bind_1x_out.close();
+	}
+
+	if (abs(y) < 3)
+	{
+		ofstream picture_color_bind_1y_out;
+		picture_color_bind_1y_out.open("Picture_color_bind_1y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_1y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_1y_out.clear();
+		picture_color_bind_1y_out.close();
+	}
+
+	if (abs(z) < 3)
+	{
+		ofstream picture_color_bind_1z_out;
+		picture_color_bind_1z_out.open("Picture_color_bind_1z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_1z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_1z_out.clear();
+		picture_color_bind_1z_out.close();
+	}
+}
+
+void picture_color_bind_350(double x, double y, double z, double P0)
+{
+	double r, g, b, tr;
+	//	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_350_out;
+	picture_color_bind_350_out.open("Picture_color_bind_350.pov", ios::app);
+
+	tr = 0.5;
+
+	if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+	{
+		r = (-P0 / kB)*0.001;
+		g = 1;
+		b = 0;
+	}
+	else
+		if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+		{
+			r = 1;
+			g = 1 - (-P0 / kB - 1000)*0.001;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) == 0)
+			{
+				r = 1;
+				g = 1;
+				b = 1;
+			}
+			else
+			{
+				r = 0;
+				g = 0;
+				b = 0;
+			}
+
+
+	picture_color_bind_350_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+	picture_color_bind_350_out.clear();
+	picture_color_bind_350_out.close();
+
+	if (abs(x) < 9)
+	{
+		ofstream picture_color_bind_350_3x_out;
+		picture_color_bind_350_3x_out.open("Picture_color_bind_350_3x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_3x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_3x_out.clear();
+		picture_color_bind_350_3x_out.close();
+	}
+
+	if (abs(y) < 9)
+	{
+		ofstream picture_color_bind_350_3y_out;
+		picture_color_bind_350_3y_out.open("Picture_color_bind_350_3y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_3y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_3y_out.clear();
+		picture_color_bind_350_3y_out.close();
+	}
+
+	if (abs(z) < 9)
+	{
+		ofstream picture_color_bind_350_3z_out;
+		picture_color_bind_350_3z_out.open("Picture_color_bind_350_3z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_3z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_3z_out.clear();
+		picture_color_bind_350_3z_out.close();
+	}
+
+	if (abs(x) < 3)
+	{
+		ofstream picture_color_bind_350_1x_out;
+		picture_color_bind_350_1x_out.open("Picture_color_bind_350_1x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_1x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_1x_out.clear();
+		picture_color_bind_350_1x_out.close();
+	}
+
+	if (abs(y) < 3)
+	{
+		ofstream picture_color_bind_350_1y_out;
+		picture_color_bind_350_1y_out.open("Picture_color_bind_350_1y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_1y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_1y_out.clear();
+		picture_color_bind_350_1y_out.close();
+	}
+
+	if (abs(z) < 3)
+	{
+		ofstream picture_color_bind_350_1z_out;
+		picture_color_bind_350_1z_out.open("Picture_color_bind_350_1z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_1z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_1z_out.clear();
+		picture_color_bind_350_1z_out.close();
+	}
+}
+
+void picture_color_bind_350_500(double x, double y, double z, double P0)
+{
+	double r, g, b, tr;
+	//	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_350_500_out;
+	picture_color_bind_350_500_out.open("Picture_color_bind_350_500.pov", ios::app);
+
+	tr = 0.5;
+
+	if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+	{
+		r = (-P0 / kB)*0.001;
+		g = 1;
+		b = 0;
+	}
+	else
+		if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+		{
+			r = 1;
+			g = 1 - (-P0 / kB - 1000)*0.001;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) == 0)
+			{
+				r = 1;
+				g = 1;
+				b = 1;
+			}
+			else
+			{
+				r = 0;
+				g = 0;
+				b = 0;
+			}
+
+
+	picture_color_bind_350_500_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+	picture_color_bind_350_500_out.clear();
+	picture_color_bind_350_500_out.close();
+
+	if (abs(x) < 9)
+	{
+		ofstream picture_color_bind_350_500_3x_out;
+		picture_color_bind_350_500_3x_out.open("Picture_color_bind_350_500_3x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_500_3x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_500_3x_out.clear();
+		picture_color_bind_350_500_3x_out.close();
+	}
+
+	if (abs(y) < 9)
+	{
+		ofstream picture_color_bind_350_500_3y_out;
+		picture_color_bind_350_500_3y_out.open("Picture_color_bind_350_500_3y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_500_3y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_500_3y_out.clear();
+		picture_color_bind_350_500_3y_out.close();
+	}
+
+	if (abs(z) < 9)
+	{
+		ofstream picture_color_bind_350_500_3z_out;
+		picture_color_bind_350_500_3z_out.open("Picture_color_bind_350_500_3z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_500_3z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_500_3z_out.clear();
+		picture_color_bind_350_500_3z_out.close();
+	}
+
+	if (abs(x) < 3)
+	{
+		ofstream picture_color_bind_350_500_1x_out;
+		picture_color_bind_350_500_1x_out.open("Picture_color_bind_350_500_1x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_500_1x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_500_1x_out.clear();
+		picture_color_bind_350_500_1x_out.close();
+	}
+
+	if (abs(y) < 3)
+	{
+		ofstream picture_color_bind_350_500_1y_out;
+		picture_color_bind_350_500_1y_out.open("Picture_color_bind_350_500_1y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_500_1y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_500_1y_out.clear();
+		picture_color_bind_350_500_1y_out.close();
+	}
+
+	if (abs(z) < 3)
+	{
+		ofstream picture_color_bind_350_500_1z_out;
+		picture_color_bind_350_500_1z_out.open("Picture_color_bind_350_500_1z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_350_500_1z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_350_500_1z_out.clear();
+		picture_color_bind_350_500_1z_out.close();
+	}
+}
+
+void picture_color_bind_500_700(double x, double y, double z, double P0)
+{
+	double r, g, b, tr;
+	//	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_500_out;
+	picture_color_bind_500_out.open("Picture_color_bind_500.pov", ios::app);
+
+	tr = 0.5;
+
+	if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+	{
+		r = (-P0 / kB)*0.001;
+		g = 1;
+		b = 0;
+	}
+	else
+		if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+		{
+			r = 1;
+			g = 1 - (-P0 / kB - 1000)*0.001;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) == 0)
+			{
+				r = 1;
+				g = 1;
+				b = 1;
+			}
+			else
+			{
+				r = 0;
+				g = 0;
+				b = 0;
+			}
+
+
+	picture_color_bind_500_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+	picture_color_bind_500_out.clear();
+	picture_color_bind_500_out.close();
+
+	if (abs(x) < 9)
+	{
+		ofstream picture_color_bind_500_3x_out;
+		picture_color_bind_500_3x_out.open("Picture_color_bind_500_3x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_500_3x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_500_3x_out.clear();
+		picture_color_bind_500_3x_out.close();
+	}
+
+	if (abs(y) < 9)
+	{
+		ofstream picture_color_bind_500_3y_out;
+		picture_color_bind_500_3y_out.open("Picture_color_bind_500_3y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_500_3y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_500_3y_out.clear();
+		picture_color_bind_500_3y_out.close();
+	}
+
+	if (abs(z) < 9)
+	{
+		ofstream picture_color_bind_500_3z_out;
+		picture_color_bind_500_3z_out.open("Picture_color_bind_500_3z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_500_3z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_500_3z_out.clear();
+		picture_color_bind_500_3z_out.close();
+	}
+
+	if (abs(x) < 3)
+	{
+		ofstream picture_color_bind_500_1x_out;
+		picture_color_bind_500_1x_out.open("Picture_color_bind_500_1x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_500_1x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_500_1x_out.clear();
+		picture_color_bind_500_1x_out.close();
+	}
+
+	if (abs(y) < 3)
+	{
+		ofstream picture_color_bind_500_1y_out;
+		picture_color_bind_500_1y_out.open("Picture_color_bind_500_1y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_500_1y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_500_1y_out.clear();
+		picture_color_bind_500_1y_out.close();
+	}
+
+	if (abs(z) < 3)
+	{
+		ofstream picture_color_bind_500_1z_out;
+		picture_color_bind_500_1z_out.open("Picture_color_bind_500_1z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_500_1z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_500_1z_out.clear();
+		picture_color_bind_500_1z_out.close();
+	}
+}
+
+void picture_color_bind_700(double x, double y, double z, double P0)
+{
+	double r, g, b, tr;
+	//	cout << "There is a record in the file..." << endl;
+	ofstream picture_color_bind_700_out;
+	picture_color_bind_700_out.open("Picture_color_bind_700.pov", ios::app);
+
+	tr = 0.5;
+
+	if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+	{
+		r = (-P0 / kB)*0.001;
+		g = 1;
+		b = 0;
+	}
+	else
+		if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+		{
+			r = 1;
+			g = 1 - (-P0 / kB - 1000)*0.001;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) == 0)
+			{
+				r = 1;
+				g = 1;
+				b = 1;
+			}
+			else
+			{
+				r = 0;
+				g = 0;
+				b = 0;
+			}
+
+
+	picture_color_bind_700_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+	picture_color_bind_700_out.clear();
+	picture_color_bind_700_out.close();
+
+	if (abs(x) < 9)
+	{
+		ofstream picture_color_bind_700_3x_out;
+		picture_color_bind_700_3x_out.open("Picture_color_bind_700_3x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_700_3x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_700_3x_out.clear();
+		picture_color_bind_700_3x_out.close();
+	}
+
+	if (abs(y) < 9)
+	{
+		ofstream picture_color_bind_700_3y_out;
+		picture_color_bind_700_3y_out.open("Picture_color_bind_700_3y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_700_3y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_700_3y_out.clear();
+		picture_color_bind_700_3y_out.close();
+	}
+
+	if (abs(z) < 9)
+	{
+		ofstream picture_color_bind_700_3z_out;
+		picture_color_bind_700_3z_out.open("Picture_color_bind_700_3z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_700_3z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_700_3z_out.clear();
+		picture_color_bind_700_3z_out.close();
+	}
+
+	if (abs(x) < 3)
+	{
+		ofstream picture_color_bind_700_1x_out;
+		picture_color_bind_700_1x_out.open("Picture_color_bind_700_1x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_700_1x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_700_1x_out.clear();
+		picture_color_bind_700_1x_out.close();
+	}
+
+	if (abs(y) < 3)
+	{
+		ofstream picture_color_bind_700_1y_out;
+		picture_color_bind_700_1y_out.open("Picture_color_bind_700_1y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_700_1y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_700_1y_out.clear();
+		picture_color_bind_700_1y_out.close();
+	}
+
+	if (abs(z) < 3)
+	{
+		ofstream picture_color_bind_700_1z_out;
+		picture_color_bind_700_1z_out.open("Picture_color_bind_700_1z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_700_1z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_700_1z_out.clear();
+		picture_color_bind_700_1z_out.close();
+	}
+}
+/*
+void picture_color_bind_3x(double x, double y, double z, double P0)
+{
+	double r, g, b, tr;
+	//	cout << "There is a record in the file..." << endl;
+	if (abs(x) < 9)
+	{
+		ofstream picture_color_bind_3x_out;
+		picture_color_bind_3x_out.open("Picture_color_bind_3x.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_3x_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_3x_out.clear();
+		picture_color_bind_3x_out.close();
+	}
+}
+
+void picture_color_bind_3y(double x, double y, double z, double P0)
+{
+	double r, g, b, tr;
+	//	cout << "There is a record in the file..." << endl;
+	if (abs(y) < 9)
+	{
+		ofstream picture_color_bind_3y_out;
+		picture_color_bind_3y_out.open("Picture_color_bind_3y.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_3y_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_3y_out.clear();
+		picture_color_bind_3y_out.close();
+	}
+}
+
+void picture_color_bind_3z(double x, double y, double z, double P0)
+{
+	double r, g, b, tr;
+	//	cout << "There is a record in the file..." << endl;
+	if (abs(z) < 9)
+	{
+		ofstream picture_color_bind_3z_out;
+		picture_color_bind_3z_out.open("Picture_color_bind_3z.pov", ios::app);
+
+		tr = 0.5;
+
+		if ((-P0 / kB) > 0 && (-P0 / kB) <= 1000)
+		{
+			r = (-P0 / kB)*0.001;
+			g = 1;
+			b = 0;
+		}
+		else
+			if ((-P0 / kB) > 1000 && (-P0 / kB) <= 2000)
+			{
+				r = 1;
+				g = 1 - (-P0 / kB - 1000)*0.001;
+				b = 0;
+			}
+			else
+				if ((-P0 / kB) == 0)
+				{
+					r = 1;
+					g = 1;
+					b = 1;
+				}
+				else
+				{
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+
+
+		picture_color_bind_3z_out << " sphere { <" << x << "," << y << "," << z << ">, " << 1.2 << " texture { pigment { color rgbt <" << r << "," << g << "," << b << "," << tr << "> }}} " << endl;
+
+		picture_color_bind_3z_out.clear();
+		picture_color_bind_3z_out.close();
+	}
+}
+
+*/

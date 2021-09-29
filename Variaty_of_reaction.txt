@@ -1,0 +1,20 @@
+#include "stdafx.h"
+using namespace std;
+
+class Variaty_of_reaction
+{
+	public:
+		Variaty_of_reaction ()
+		{
+			index=0;
+			a=0;
+			c=0;
+			E=0;
+			b=0;
+			k_des=0;
+			k_abs=0;
+		}
+
+		int index, isxodnik[2], prdoduct[4];
+		double c, a, E, k_des, k_abs, b;
+};

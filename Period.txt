@@ -1,0 +1,38 @@
+#include "stdafx.h"
+using namespace std;
+
+class Period
+{
+	public:
+		Period()
+		{
+			f = 0; // номер молекулы
+			tau = 0; // шаг по времени
+			migr = false;
+			migr_t = false;
+			r = 0;
+			fi = 0;
+			teta = 0;
+			index = 0; //индекс молекулы
+		}
+
+/*		Period operator = (const Period &a)
+		{
+			if (this == &a)
+				return *this;
+
+			f = a.f; 
+			tau = a.tau;
+			migr = a.migr;
+			r = a.r;
+			fi = a.fi;
+			teta = a.teta;
+			index = a.index;
+
+			return *this;
+		}
+*/
+		bool migr, migr_t;
+		int f, number_reaction, number_point, index; //  number_point - номер точки миграции
+		double tau, r, fi, teta;
+};

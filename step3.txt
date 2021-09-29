@@ -1,0 +1,1093 @@
+#include "stdafx.h"
+#include <string>
+#include <math.h>
+#include <Algorithm>
+#include <random>
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include <istream>
+//#include "Variaty_of_reaction.h"
+//#include "Variety_of_molecules.h"
+//#include "Molekula.h"
+//#include "Period.h"
+//#include "zapis.h"
+using namespace std;
+
+struct sort_class_V
+{
+	bool operator() (Vector3 i, Vector3 j)
+	{
+		return (i.z>j.z);
+	}
+} sort_vec_z;
+
+struct sort_class_Mr
+{
+	bool operator() (Molekula i, Molekula j)
+	{
+		return (i.r<j.r);
+	}
+} sort_M_r;
+
+
+void step3(double tau, int nu, Variety_of_molecules first_variant[], vector<Molekula>  &M, Molekula MM, Variaty_of_reaction first_variant_r[], vector<Period> &Tau); // 3 шаг и проча€ фигн€
+void clean_repeat(Molekula MmM, ofstream &fout, string File_name);
+double min_potencial_on_line(Variety_of_molecules first_variant[], vector<Molekula>& M, double& r, double& fi, double& teta, int p, int number_f);
+void Holes_record(double r, double fi, double teta, double P_U0);
+
+void step3(double tau, int nu, Variety_of_molecules first_variant[], vector<Molekula>  &M, Molekula MM, Variaty_of_reaction first_variant_r[], vector<Period> &Tau)
+{
+	int i, pq, iq;
+	double x1, x2, x3;
+	char nameX[100];
+/*
+	string Poten_K, PMZ, N_st_P;
+	Poten_K = filed_name("Potencial_K_");
+	PMZ = filed_name("Point_migration_size_");
+	N_st_P = filed_name("N_step_P_");
+*/
+	if (nu == -1)
+	{
+		G_charge--;
+		goto stop;
+	}
+
+	if (Tau[0].migr == true)
+	{
+		double PPP_0;
+		Potential PUU_0;
+		PUU_0.r = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.r;
+		PUU_0.fi = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.fi;
+		PUU_0.teta = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.teta;
+		PUU_0.x = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.x;
+		PUU_0.y = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.y;
+		PUU_0.z = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.z;
+		PPP_0 = potencial(first_variant, M, PUU_0.r, PUU_0.fi, PUU_0.teta, M[Tau[0].f].index, Tau[0].f);
+		if (PPP_0 == 99999 || PPP_0 == 0)
+		{
+			M[Tau[0].f].PT_migr.erase(M[Tau[0].f].PT_migr.begin() + Tau[0].number_point);
+			migr_error++;
+			goto stop_m;
+		}
+
+		if (Tau[0].migr_t == true)
+		{
+			P_MT_U_out.open(PMT, ios_base::app);
+			P_MT_U_out << (M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr_tm.U - M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr_t.U) / kB << endl;
+			P_MT_U_out.clear();
+			P_MT_U_out.close();
+
+			P_MTRPK_U_out.open(PMTRPK, ios_base::app);
+			P_MTRPK_U_out << (M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr_tm.U / kB - M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr_t.U / kB) / (M[Tau[0].f].potential_centr / kB) << endl;
+			P_MTRPK_U_out.clear();
+			P_MTRPK_U_out.close();
+			
+			migr_t++;
+		}
+		else
+		{
+			migr_kv++;
+		}
+
+		Molekula AM;
+		bool pr_m = false;
+		bool PT_repeat = false;
+		int number_PT_repeat = 0;
+		for (int i = 0; i < M[Tau[0].f].PT_migr_repeat.size(); i++)
+		{
+			if (M[Tau[0].f].PT_migr[Tau[0].number_point] == M[Tau[0].f].PT_migr_repeat[i])
+			{
+				M[Tau[0].f].PT_migr_repeat[i].repeat_number++;
+				PT_repeat = true;
+				number_PT_repeat = i;
+			}
+		}
+
+		if (PT_repeat == false)
+		{
+			M[Tau[0].f].PT_migr_repeat.push_back(M[Tau[0].f].PT_migr[Tau[0].number_point]);
+			M[Tau[0].f].PT_migr_repeat[M[Tau[0].f].PT_migr_repeat.size() - 1].P_migr_P.U = PPP_0;
+		}
+		else
+		{
+			if (M[Tau[0].f].PT_migr_repeat[number_PT_repeat].repeat_number >= 10)
+			{
+				M[Tau[0].f].migr_t_on = false;
+				migr_off++;
+				clean_repeat(M[Tau[0].f], P_U_out, Poten_K);
+				clean_repeat(M[Tau[0].f], P_UC_out, Poten_KC);
+				clean_repeat(M[Tau[0].f], P_MT_U_out, PMT);
+				clean_repeat(M[Tau[0].f], P_MTRPK_U_out, PMTRPK);
+			}
+		}	
+
+		AM = M[Tau[0].f];
+		M[Tau[0].f].migr++;
+
+		cout << "There is a record in the file..." << endl;
+		ofstream picture_migr;
+		picture_migr.open("Migr_picture.pov", ios::app);
+		picture_migr << "///" << m << "\t" << M[Tau[0].f].PT_migr[Tau[0].number_point].r_v << endl << "camera {location <" << M[Tau[0].f].x * 4 << "," << M[Tau[0].f].y * 4 << "," << M[Tau[0].f].z * 4 << "> look_at  <0, 0, 0>}" << endl;
+		picture_migr << " sphere { <" << M[Tau[0].f].x << "," << M[Tau[0].f].y << "," << M[Tau[0].f].z << ">, " << 1.2 << " texture { pigment { color Blue }}} " << endl << endl;
+
+
+		M[Tau[0].f].x = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.x;
+		M[Tau[0].f].y = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.y;
+		M[Tau[0].f].z = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.z;
+		M[Tau[0].f].fi = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.fi;
+		M[Tau[0].f].teta = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.teta;
+		M[Tau[0].f].r = M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.r;
+
+		R_V.push_back(M[Tau[0].f].PT_migr[Tau[0].number_point].r_v);
+
+
+		picture_migr << "camera {location <" << M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.x * 4 << "," << M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.y * 4 << "," << M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.z * 4 << "> look_at  <0, 0, 0>}" << endl;
+		picture_migr << " sphere { <" << M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.x << "," << M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.y << "," << M[Tau[0].f].PT_migr[Tau[0].number_point].P_migr.z << ">, " << 1.2 << " texture { pigment { color Red }}} " << endl << endl << endl;
+		picture_migr.clear();
+		picture_migr.close();
+
+		for (int i = 0; i < M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number.size(); i++)
+		{
+			try
+			{
+				if(M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]>=M.size() - 1)
+				{
+					throw 1;
+				}
+				for (int k = 0; k < M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_shift_number.size(); k++)
+				{
+					if (M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_shift_number[k] == Tau[0].f)
+					{
+						M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_shift_number.erase(M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_shift_number.begin() + k);
+						M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_number.erase(M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_number.begin() + k);
+						k--;
+					}
+				}
+			}
+			catch(int pizdec)
+			{
+				M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i] = M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i] - pizdec;
+				for (int k = 0; k < M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_shift_number.size(); k++)
+				{
+					if (M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_shift_number[k] == Tau[0].f)
+					{
+						M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_shift_number.erase(M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_shift_number.begin() + k);
+						M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_number.erase(M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_number.begin() + k);
+						k--;
+					}
+				}
+
+				bagout.open("bagg.txt", ios_base::app);
+				bagout << "pizdec1" << "\t" << t << "\t" << n << "\t" << m << "\t" << endl;
+				bagout.clear();
+				bagout.close();
+			}
+
+			M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].n_bind--;
+			M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].k_des = Nu * exp((M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].potential_centr / kB) / T);
+			M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].k_des = Nu * exp(-first_variant[M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].index].E_bind * M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_shift_number.size() / T);
+			M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].k_des = M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].k_des * M[M[Tau[0].f].PT_migr[Tau[0].number_point].torn_bind_shift_number[i]].bind_shift_number.size();
+		}
+
+		for (int i = 0; i < M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number.size(); i++)
+		{
+			M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].bind_number.push_back(M[Tau[0].f].number); // нахера оно обращаетс€ к точке уже выполненой миграции, а не к молекуле? переделать нахер / переделано, но смотреть внимательней
+			M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].bind_shift_number.push_back(M[Tau[0].f].shift_number); // или всЄ верно..., ошибка где-то в пересчЄтах при десорбции / , да это оно и было
+
+			M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].n_bind++;
+			M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].k_des = Nu * exp((M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].potential_centr / kB) / T);
+			M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].k_des = Nu * exp(-first_variant[M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].index].E_bind * M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].bind_shift_number.size() / T);
+			M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].k_des = M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].k_des * M[M[Tau[0].f].PT_migr[Tau[0].number_point].build_bind_shift_number[i]].bind_shift_number.size();
+		}
+
+		M[Tau[0].f].bind_number = M[Tau[0].f].PT_migr[Tau[0].number_point].bind_number;
+		M[Tau[0].f].bind_shift_number = M[Tau[0].f].PT_migr[Tau[0].number_point].bind_shift_number;
+		M[Tau[0].f].n_bind = M[Tau[0].f].PT_migr[Tau[0].number_point].bind_shift_number.size();
+		M[Tau[0].f].k_des = Nu * exp((M[Tau[0].f].potential_centr / kB) / T);
+		M[Tau[0].f].k_des = Nu * exp(-first_variant[M[Tau[0].f].index].E_bind * M[Tau[0].f].bind_shift_number.size() / T);
+		M[Tau[0].f].k_des = M[Tau[0].f].k_des * M[Tau[0].f].bind_shift_number.size();
+
+		vector<Molekula> M_oblast(0);
+		oblast(M, AM, M_oblast);
+		double r_u, q;
+
+		for (int j = 0; j < M_oblast.size(); j++) // пересчЄт точек миграции
+		{
+			if (M_oblast[j].index != 467)
+			{
+//				migration(first_variant, M, M_oblast[j]);
+
+				for (int k; k < M_oblast[j].PT_migr.size(); k++)
+				{
+
+					for (int z = 0; z < M_oblast[j].PT_migr[k].bind_shift_number.size(); z++)
+					{
+
+						if (M_oblast[j].PT_migr[k].bind_shift_number[z] == Tau[0].f)
+						{
+							M_oblast[j].PT_migr[k].bind_shift_number.erase(M_oblast[j].PT_migr[k].bind_shift_number.begin() + z);
+							M_oblast[j].PT_migr[k].bind_number.erase(M_oblast[j].PT_migr[k].bind_number.begin() + z);
+							z--;
+						}
+					}
+
+					for (int z = 0; z < M_oblast[j].PT_migr[k].torn_bind_shift_number.size(); z++)
+					{
+
+						if (M_oblast[j].PT_migr[k].torn_bind_shift_number[z] == Tau[0].f)
+						{
+							M_oblast[j].PT_migr[k].torn_bind_shift_number.erase(M_oblast[j].PT_migr[k].torn_bind_shift_number.begin() + z);
+							M_oblast[j].PT_migr[k].torn_bind_number.erase(M_oblast[j].PT_migr[k].torn_bind_number.begin() + z);
+							z--;
+						}
+					}
+
+					for (int z = 0; z < M_oblast[j].PT_migr[k].build_bind_shift_number.size(); z++)
+					{
+
+						if (M_oblast[j].PT_migr[k].build_bind_shift_number[z] == Tau[0].f)
+						{
+							M_oblast[j].PT_migr[k].build_bind_shift_number.erase(M_oblast[j].PT_migr[k].build_bind_shift_number.begin() + z);
+							M_oblast[j].PT_migr[k].build_bind_number.erase(M_oblast[j].PT_migr[k].build_bind_number.begin() + z);
+							z--;
+						}
+					}
+
+					for (int z = 0; z < M_oblast[j].PT_migr[k].save_bind_shift_number.size(); z++)
+					{
+						if (M_oblast[j].PT_migr[k].save_bind_shift_number[z] == Tau[0].f)
+						{
+							M_oblast[j].PT_migr[k].save_bind_shift_number.erase(M_oblast[j].PT_migr[k].save_bind_shift_number.begin() + z);
+							M_oblast[j].PT_migr[k].save_bind_number.erase(M_oblast[j].PT_migr[k].save_bind_number.begin() + z);
+							z--;
+						}
+					}
+
+					if (pow((pow((M_oblast[j].PT_migr[k].P_migr.x - AM.x), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.y - AM.y), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.z - AM.z), 2.0)), 1 / 2.0) <= 2.5 * sigm_MAX)
+					{
+						r_u = pow((pow((M_oblast[j].PT_migr[k].P_migr.x - AM.x), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.y - AM.y), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.z - AM.z), 2.0)), 1 / 2.0);
+						M_oblast[j].PT_migr[k].P_migr.U = M_oblast[j].PT_migr[k].P_migr.U - 4 * pow(M_oblast[j].eps * AM.eps, 1 / 2.0) * (pow((M_oblast[j].sigm + AM.sigm) / 2.0 / r_u, 12) - pow((M_oblast[j].sigm + AM.sigm) / 2.0 / r_u, 6));
+					}
+				}
+				M[M_oblast[j].shift_number] = M_oblast[j];
+			}
+		}
+
+		double xm, ym, zm;
+//		int a = 1;
+		xm = M[Tau[0].f].x;
+		ym = M[Tau[0].f].y;
+		zm = M[Tau[0].f].z;
+		
+		M[Tau[0].f].potential_centr = PPP_0;
+		M[Tau[0].f].r = PUU_0.r;
+		M[Tau[0].f].fi = PUU_0.fi;
+		M[Tau[0].f].teta = PUU_0.teta;
+
+
+//		M[Tau[0].f].potential_centr = potencial(first_variant, M, M[Tau[0].f].r, M[Tau[0].f].fi, M[Tau[0].f].teta, M[Tau[0].f].index, Tau[0].f);
+
+
+		Potential PP;
+		Vector3 Gradient, V;
+
+		PP.r = M[Tau[0].f].r;
+		PP.fi = M[Tau[0].f].fi;
+		PP.teta = M[Tau[0].f].teta;
+		PP.newx();
+		PP.newy();
+		PP.newz();
+
+		do
+		{
+			M[Tau[0].f].potential_centr = potencial(first_variant, M, M[Tau[0].f].r, M[Tau[0].f].fi, M[Tau[0].f].teta, M[Tau[0].f].index, Tau[0].f);
+			if (M[Tau[0].f].potential_centr == 99999 && M[Tau[0].f].potential_centr == 0 && a < 1000)
+			{
+				calculation_potential(first_variant, M_oblast, M[Tau[0].f].index, PP);
+				calculation_gradient(M_oblast, first_variant, Gradient, PP, M[Tau[0].f].index);
+				V.x = -Gradient.a;
+				V.y = -Gradient.b;
+				V.z = -Gradient.c;
+				V.newfi();
+				V.newteta();
+				V.newr();
+				V.r = 1 / a;
+				V.newx();
+				V.newy();
+				V.newz();
+				a++;
+				continue;
+			}
+		} while (false);
+
+
+		M[Tau[0].f].newx(M[Tau[0].f].r, M[Tau[0].f].fi, M[Tau[0].f].teta);
+		M[Tau[0].f].newy(M[Tau[0].f].r, M[Tau[0].f].fi, M[Tau[0].f].teta);
+		M[Tau[0].f].newz(M[Tau[0].f].r, M[Tau[0].f].fi, M[Tau[0].f].teta);
+
+		N_step_P.open(N_st_P, ios_base::app);
+		N_step_P << pow(pow(xm - M[Tau[0].f].x, 2.0) + pow(ym - M[Tau[0].f].y, 2.0) + pow(zm - M[Tau[0].f].z, 2.0), 1 / 2.0) << endl;
+		N_step_P.clear();
+		N_step_P.close();
+		pr_m = prov_bind(M, M[Tau[0].f]);
+
+		if (pr_m == false)
+		{
+			Holes_record(M[Tau[0].f].r, M[Tau[0].f].fi, M[Tau[0].f].teta, M[Tau[0].f].potential_centr);
+
+			P_UC_out.open(Poten_KC, ios_base::app);
+			P_UC_out << M[Tau[0].f].potential_centr / kB << endl;
+			P_UC_out.clear();
+			P_UC_out.close();
+
+			migration(first_variant, M, M[Tau[0].f]);
+
+//			P_U_out.open(Poten_K, ios_base::app);
+//			P_U_out << M[Tau[0].f].potential_centr / kB << endl;
+			P_m_size.open(PMZ, ios_base::app);
+			P_m_size << M[Tau[0].f].potential_centr / kB << "\t" << M[Tau[0].f].PT_migr.size() << endl;
+			P_U_out.clear();
+			P_U_out.close();
+			P_m_size.clear();
+			P_m_size.close();
+
+			vector<Molekula> M_oblast(0);
+			oblast(M, M[Tau[0].f], M_oblast);
+
+			for (int j = 0; j < M_oblast.size(); j++) // пересчЄт точек миграции
+			{
+				if (M_oblast[j].index != 467)
+				{
+					//migration(first_variant, M, M_oblast[j]);
+
+					for (int k; k < M_oblast[j].PT_migr.size(); k++)
+					{
+
+						q = (M_oblast[j].sigm + M[Tau[0].f].sigm) / 2.0 + first_variant[562].radius;
+//						q = MmM.sigm + M[jj].sigm + first_variant[562].radius / 10.0;
+						if (pow((pow((M_oblast[j].PT_migr[k].P_migr.x - M[Tau[0].f].x), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.y - M[Tau[0].f].y), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.z - M[Tau[0].f].z), 2.0)), 1 / 2.0) <= q)
+						{
+							M_oblast[j].PT_migr[k].bind_number.push_back(M[Tau[0].f].number);
+							M_oblast[j].PT_migr[k].bind_shift_number.push_back(M[Tau[0].f].shift_number);
+						}
+
+						for (int jj = 0; jj < M[Tau[0].f].bind_number.size(); jj++)
+						{
+							for (int kk = 0; kk < M_oblast[j].PT_migr[k].bind_number.size(); kk++)
+							{
+								if (M_oblast[j].PT_migr[k].bind_number[kk] == M[Tau[0].f].bind_number[jj])
+								{
+									M_oblast[j].PT_migr[k].save_bind_number.push_back(M[Tau[0].f].bind_number[jj]);
+									M_oblast[j].PT_migr[k].save_bind_shift_number.push_back(M[Tau[0].f].bind_shift_number[jj]);
+								}
+								else
+								{
+									M_oblast[j].PT_migr[k].torn_bind_number.push_back(M[Tau[0].f].bind_number[jj]);
+									M_oblast[j].PT_migr[k].torn_bind_shift_number.push_back(M[Tau[0].f].bind_shift_number[jj]);									
+								}
+							}
+						}
+
+						for (int jj = 0; jj < M_oblast[j].PT_migr[k].bind_number.size(); jj++)
+						{
+							for (int kk = 0; kk < M[Tau[0].f].bind_number.size(); kk++)
+							{
+								if (M_oblast[j].PT_migr[k].bind_number[jj] == M[Tau[0].f].bind_number[kk])
+								{
+									continue;
+								}
+								else
+								{
+									M_oblast[j].PT_migr[k].build_bind_number.push_back(M_oblast[j].PT_migr[k].bind_number[jj]);
+									M_oblast[j].PT_migr[k].build_bind_shift_number.push_back(M_oblast[j].PT_migr[k].bind_shift_number[jj]);
+								}
+							}
+						}
+
+						if (pow((pow((M_oblast[j].PT_migr[k].P_migr.x - M[Tau[0].f].x), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.y - M[Tau[0].f].y), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.z - M[Tau[0].f].z), 2.0)), 1 / 2.0) <= 2.5 * sigm_MAX)
+						{
+							r_u = pow((pow((M_oblast[j].PT_migr[k].P_migr.x - M[Tau[0].f].x), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.y - M[Tau[0].f].y), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.z - M[Tau[0].f].z), 2.0)), 1 / 2.0);
+							M_oblast[j].PT_migr[k].P_migr.U = M_oblast[j].PT_migr[k].P_migr.U + 4 * pow(M_oblast[j].eps * M[Tau[0].f].eps, 1 / 2.0) * (pow((M_oblast[j].sigm + M[Tau[0].f].sigm) / 2.0 / r_u, 12) - pow((M_oblast[j].sigm + M[Tau[0].f].sigm) / 2.0 / r_u, 6));
+						}
+					}
+					M[M_oblast[j].shift_number] = M_oblast[j];
+				}
+			}
+		}
+		else
+		{
+			if (Tau[0].migr_t == true)
+			{
+				des_H2_mt++;
+			}
+			else 
+			{
+				des_H2_kv++;
+			}
+		}
+
+
+		m++;
+		t = t + tau;
+		n++;
+		return;
+	}
+
+	random_device randist;
+	//	mt19937 gen_rand_fi, gen_rand_teta;
+	//	gen_rand_fi.seed(randist());
+	//	gen_rand_teta.seed(randist());
+	uniform_real_distribution<double> distr_x(-1.0, 1.0), distr_x2(-1.0, 1.0);
+
+	for (pq = 0; pq<4; pq++) // добавление в систему продуктов реакции
+	{
+
+		first_variant[first_variant_r[nu].prdoduct[pq]].quantiti++;
+
+		strcpy(nameX, first_variant[first_variant_r[nu].prdoduct[pq]].name.c_str());
+
+		//		ofstream provout;
+		//		provout.open("prov.txt", ios::app);
+		if (nameX[0] == 'g') // добавление продуктов на пылинку
+		{
+			double fi, teta, rand_x1, rand_x2, rand_x3, rand_x4, r = 19;  //http://mathworld.wolfram.com/SpherePointPicking.html
+			bool stop = 0;
+
+			do
+			{
+				do
+				{
+					do
+					{
+					rand_x1 = distr_x(randist);
+					rand_x2 = distr_x(randist);
+					rand_x3 = distr_x(randist);
+					rand_x4 = distr_x(randist);
+					} while (pow(rand_x1, 2.0) + pow(rand_x2, 2.0) + pow(rand_x3, 2.0) + pow(rand_x4, 2.0)<DBL_EPSILON || pow(rand_x1, 2.0) + pow(rand_x2, 2.0) + pow(rand_x3, 2.0) + pow(rand_x3, 2.0) >= 1);
+					//			provout << fi << "\t" << teta << "\t" <<endl;
+					//			x1=pow(pow(rand_x1,2.0)/(pow(rand_x1,2.0)+pow(rand_x2,2.0)+pow(rand_x2,2.0)),1/2.0);
+					//			x2=pow(pow(rand_x2,2.0)/(pow(rand_x1,2.0)+pow(rand_x2,2.0)+pow(rand_x2,2.0)),1/2.0);
+					//			x3=pow(pow(rand_x3,2.0)/(pow(rand_x1,2.0)+pow(rand_x2,2.0)+pow(rand_x2,2.0)),1/2.0);
+
+
+					x1 = (2 * (rand_x2*rand_x4 + rand_x1 * rand_x3)) / (pow(rand_x1, 2.0) + pow(rand_x2, 2.0) + pow(rand_x3, 2.0) + pow(rand_x4, 2.0));
+					x2 = (2 * (rand_x3*rand_x4 - rand_x1 * rand_x2)) / (pow(rand_x1, 2.0) + pow(rand_x2, 2.0) + pow(rand_x3, 2.0) + pow(rand_x4, 2.0));
+					x3 = (pow(rand_x1, 2.0) - pow(rand_x2, 2.0) - pow(rand_x3, 2.0) + pow(rand_x4, 2.0)) / (pow(rand_x1, 2.0) + pow(rand_x2, 2.0) + pow(rand_x3, 2.0) + pow(rand_x4, 2.0));
+					
+
+					
+				} while ((sp_or_sq == 1) && (x3 <= 0) && (x1 <= -side_square + 3 || x1 >= side_square - 3 || x2 <= -side_square + 3 || x2 >= side_square - 3));
+
+				vector<Molekula> M_viborka(0);
+
+				int yy = 0;
+
+				int vm;
+				
+				double x11, x22, x33;
+				bool stop = 0;
+				do   // ƒвижение по траектории
+				{
+					int ss = 0;
+					double q = first_variant[first_variant_r[nu].prdoduct[pq]].radius * 2;
+					r = r + q / 2;
+					x1 = r * sin(teta)*cos(fi);
+					x2 = r * sin(teta)*sin(fi);
+					x3 = r * cos(teta);
+
+					x11 = (r + first_variant[first_variant_r[nu].prdoduct[pq]].radius)*sin(teta)*cos(fi);
+					x22 = (r + first_variant[first_variant_r[nu].prdoduct[pq]].radius)*sin(teta)*sin(fi);
+					x33 = (r + first_variant[first_variant_r[nu].prdoduct[pq]].radius)*cos(teta);
+
+					for (i = 0; i<yy; i++)
+					{
+						//					cout << pow((pow((M_viborka[i].x-x1),2.0)+pow((M_viborka[i].y-x2),2.0)+pow((M_viborka[i].z-x3),2.0)),1/2.0) << endl;
+						if (((pow((pow((M_viborka[i].x - x1), 2.0) + pow((M_viborka[i].y - x2), 2.0) + pow((M_viborka[i].z - x3), 2.0)), 1 / 2.0)) <= (first_variant[first_variant_r[nu].prdoduct[pq]].radius + M_viborka[i].radius)) || ((pow((pow((x11 - M_viborka[i].x), 2.0) + pow((x22 - M_viborka[i].y), 2.0) + pow((x33 - M_viborka[i].z), 2.0)), 1 / 2.0)) <= (first_variant[first_variant_r[nu].prdoduct[pq]].radius + M_viborka[i].radius)))
+						{
+							ss++;
+						}
+					}
+					//				cout << pow((pow((M_viborka[i].x-x1),2.0)+pow((M_viborka[i].y-x2),2.0)+pow((M_viborka[i].z-x3),2.0)),1/2.0);
+					if (ss == 0)
+					{
+						stop = 1;
+						r = r - q / 2;
+						double rr = 2;
+						int b = 0;
+						do
+						{
+							if (ss == 0)
+							{
+								b = 1;
+								r = r - first_variant[first_variant_r[nu].prdoduct[pq]].radius / rr;
+							}
+							else
+							{
+								b = 0;
+								r = r + first_variant[first_variant_r[nu].prdoduct[pq]].radius / rr;
+								ss = 0;
+							}
+							x1 = r * sin(teta)*cos(fi);
+							x2 = r * sin(teta)*sin(fi);
+							x3 = r * cos(teta);
+							for (i = 0; i<yy; i++)
+							{
+								//							cout << pow((pow((M_viborka[i].x-x1),2.0)+pow((M_viborka[i].y-x2),2.0)+pow((M_viborka[i].z-x3),2.0)),1/2.0) << endl;
+								if (pow((pow((M_viborka[i].x - x1), 2.0) + pow((M_viborka[i].y - x2), 2.0) + pow((M_viborka[i].z - x3), 2.0)), 1 / 2.0) <= first_variant[first_variant_r[nu].prdoduct[pq]].radius + M_viborka[i].radius)
+								{
+									ss++;
+								}
+							}
+							if (b == 1 && ss>0 || b == 0 && ss == 0)
+							{
+								rr++;
+								//							ss=0;
+							}
+						} while (rr<100);
+						stop = 1;
+	//*
+					}
+					//				stop=stopi(x1+centr-1, x2+centr-1, x3+centr-1, dekart, centr);
+				} while (stop == 0);
+	//			int i = 89, j = 95, k = 784;
+	
+
+
+							Tau[0].r = r;
+							Tau[0].fi = fi;
+							Tau[0].teta = teta;
+
+				picture_bagg(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r * cos(teta));
+				P_U0 = potencial(first_variant, M, r, fi, teta, first_variant_r[nu].prdoduct[pq], -99);
+				if (P_U0 == 99999)
+				{
+					continue;
+				}
+				if (P_U0 == 0)
+				{
+					Bagg_counter++;
+					picture_9(M_viborka, Bagg_counter);
+					continue;
+				}
+//				picture_bagg(r*sin(teta)*cos(fi), r*sin(teta)*sin(fi), r * cos(teta));
+				stop = 1;
+
+				vector<Molekula> M_oblast(0);
+				oblast(M, r, fi, teta, M_oblast, Tau[0].f);
+
+
+				if (stop == 1)
+				{
+					int nuu;
+					if (nu == 5132) // водород
+					{
+						nuu = 5318;
+					}
+					if (nu == 5198) // кислород
+					{
+						nuu = 5374;
+					}
+					if (nu == 5182) // азот
+					{
+						nuu = 5361;
+					}
+					if (nu == 5038) // углерод
+					{
+						nuu = 5233;
+					}
+					if (nu == 5210) // сера
+					{
+						nuu = 5381;
+					}
+					if (nu == 5130) // железо
+					{
+						nuu = 5316;
+					}
+					if (nu == 5212) // кремний
+					{
+						nuu = 5383;
+					}
+					if (nu == 5186) // натрий
+					{
+						nuu = 5364;
+					}
+					if (nu == 5179) // магний
+					{
+						nuu = 5358;
+					}
+					if (nu == 5205) // фосфор
+					{
+						nuu = 5661;
+					}
+					if (nu == 5123) // хлор
+					{
+						nuu = 5660;
+					}
+					zapis(first_variant, M, r, fi, teta, first_variant_r[nu].prdoduct[pq], nuu, r_p, fi_p, teta_p, x_p, y_p, z_p, P_U0);
+//					first_variant[666].quantiti++;
+
+					N_step_P.open(N_st_P, ios_base::app);
+					N_step_P << pow(pow(x_p - M[M.size() - 1].x, 2.0) + pow(y_p - M[M.size() - 1].y, 2.0) + pow(z_p - M[M.size() - 1].z, 2.0), 1 / 2.0) << endl;
+					N_step_P.clear();
+					N_step_P.close();
+
+					double q, r_u;
+					Molekula ZM;
+					bool pr_m = false;
+					ZM = M[M.size() - 1];
+
+					pr_m = prov_bind(M, M[M.size() - 1]);
+					/*
+					if (pr_m == false)
+					{
+						pr_m = prov_bind(first_variant, M, M[M.size() - 1]);
+					}
+*/
+					/*				if (pr_m == true)
+									{
+										M_oblast.clear();
+										vector<Molekula> M_oblast(0);
+										oblast(M, r, fi, teta, M_oblast);
+									}
+
+									for (int j = 0; j < M_oblast.size(); j++) // пересчЄт точек миграции
+									{
+										if (M_oblast[j].index != 467)
+										{
+											migration(first_variant, M, M_oblast[j]);
+											M[M_oblast[j].shift_number] = M_oblast[j];
+										}
+									}
+					*/
+					if (pr_m == false)
+					{
+						Holes_record(M[M.size() - 1].r, M[M.size() - 1].fi, M[M.size() - 1].teta, M[M.size() - 1].potential_centr);
+						P_UC_out.open(Poten_KC, ios_base::app);
+						P_UC_out << P_U0 / kB << endl;
+						P_UC_out.clear();
+						P_UC_out.close();
+						for (int j = 0; j < M_oblast.size(); j++) // пересчЄт точек миграции
+						{
+							if (M_oblast[j].index != 467)
+							{
+								//migration(first_variant, M, M_oblast[j]);
+
+								for (int k; k < M_oblast[j].PT_migr.size(); k++)
+								{
+
+									q = (M_oblast[j].sigm + M[M.size() - 1].sigm) / 2.0 + first_variant[562].radius;
+									//					q = MmM.sigm + M[jj].sigm + first_variant[562].radius / 10.0;
+									if (pow((pow((M_oblast[j].PT_migr[k].P_migr.x - M[M.size() - 1].x), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.y - M[M.size() - 1].y), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.z - M[M.size() - 1].z), 2.0)), 1 / 2.0) <= q)
+									{
+										M_oblast[j].PT_migr[k].bind_number.push_back(M[M.size() - 1].number);
+										M_oblast[j].PT_migr[k].bind_shift_number.push_back(M[M.size() - 1].shift_number);
+									}
+
+									for (int jj = 0; jj < M[M.size() - 1].bind_number.size(); jj++)
+									{
+										for (int kk = 0; kk < M_oblast[j].PT_migr[k].bind_number.size(); kk++)
+										{
+											if (M_oblast[j].PT_migr[k].bind_number[kk] == M[M.size() - 1].bind_number[jj])
+											{
+												M_oblast[j].PT_migr[k].save_bind_number.push_back(M[M.size() - 1].bind_number[jj]);
+												M_oblast[j].PT_migr[k].save_bind_shift_number.push_back(M[M.size() - 1].bind_shift_number[jj]);
+											}
+											else
+											{
+												M_oblast[j].PT_migr[k].torn_bind_number.push_back(M[M.size() - 1].bind_number[jj]);
+												M_oblast[j].PT_migr[k].torn_bind_shift_number.push_back(M[M.size() - 1].bind_shift_number[jj]);
+											}
+										}
+									}
+
+									for (int jj = 0; jj < M_oblast[j].PT_migr[k].bind_number.size(); jj++)
+									{
+										for (int kk = 0; kk < M[M.size() - 1].bind_number.size(); kk++)
+										{
+											if (M_oblast[j].PT_migr[k].bind_number[jj] == M[M.size() - 1].bind_number[kk])
+											{
+												continue;
+											}
+											else
+											{
+												M_oblast[j].PT_migr[k].build_bind_number.push_back(M_oblast[j].PT_migr[k].bind_number[jj]);
+												M_oblast[j].PT_migr[k].build_bind_shift_number.push_back(M_oblast[j].PT_migr[k].bind_shift_number[jj]);
+											}
+										}
+									}
+
+									if (pow((pow((M_oblast[j].PT_migr[k].P_migr.x - M[M.size() - 1].x), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.y - M[M.size() - 1].y), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.z - M[M.size() - 1].z), 2.0)), 1 / 2.0) <= 2.5 * sigm_MAX)
+									{
+										r_u = pow((pow((M_oblast[j].PT_migr[k].P_migr.x - M[M.size() - 1].x), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.y - M[M.size() - 1].y), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.z - M[M.size() - 1].z), 2.0)), 1 / 2.0);
+										M_oblast[j].PT_migr[k].P_migr.U = M_oblast[j].PT_migr[k].P_migr.U + 4 * pow(M_oblast[j].eps * M[M.size() - 1].eps, 1 / 2.0) * (pow((M_oblast[j].sigm + M[M.size() - 1].sigm) / 2.0 / r_u, 12) - pow((M_oblast[j].sigm + M[M.size() - 1].sigm) / 2.0 / r_u, 6));
+									}
+								}
+								M[M_oblast[j].shift_number] = M_oblast[j];
+							}
+						}
+					}
+					else
+					{
+						des_H2_hot_acc++;
+					}
+
+					//				picture(dekart, first_variant, M, dekart.centr, f); // функци€ генерирует файл по которому строитс€ графическое изображение
+					//				cout << M[f].x << endl << M[f].y << endl << M[f].z << endl; //фигн€ дл€ проверки
+					//				break;
+				}
+
+			}while (stop == 0);
+		}
+	}
+
+	for (iq = 0; iq<2; iq++) // уничтожение исходников реакции
+	{
+		first_variant[first_variant_r[nu].isxodnik[iq]].quantiti--;
+		strcpy(nameX, first_variant[first_variant_r[nu].isxodnik[iq]].name.c_str());
+		if (nameX[0] == 'g') // уничтожение исходников на пылинке
+		{
+			
+			double q;
+			vector<int> k(1);
+			k[0] = Tau[0].f;
+
+			for (int j = 1; j < M.size(); j++)
+			{
+
+				q = first_variant[M[j].index].k_des + M[Tau[0].f].eps;
+				if (pow((pow((M[Tau[0].f].x - M[j].x), 2.0) + pow((M[Tau[0].f].y - M[j].y), 2.0) + pow((M[Tau[0].f].z - M[j].z), 2.0)), 1 / 2.0) <= q && Tau[0].f!=j)
+				{
+					M[j].n_bind--;
+					M[Tau[0].f].n_bind--;
+					k.push_back(0);
+					k[k.size() - 1] = j;
+					for (int k = 0; k < M[j].bind_number.size(); k++)
+					{
+						if (M[j].bind_number[k] == M[Tau[0].f].number)
+						{
+							M[j].bind_number.erase(M[j].bind_number.begin() + k);
+							M[j].bind_shift_number.erase(M[j].bind_shift_number.begin() + k);
+							k--;
+						}
+					}
+				}
+
+				if (M[j].shift_number > Tau[0].f) // манипул€ции сохран€ющие текущий номер молекулы
+				{
+					M[j].shift_iterator++;
+					first_variant[M[j].index].shift_iterator[M[j].index_number] = M[j].shift_iterator;
+					first_variant[M[j].index].shift_number[M[j].index_number] = M[j].number - M[j].shift_iterator;
+					M[j].shift_number = M[j].number - M[j].shift_iterator;
+					if (M[j].index == first_variant_r[nu].isxodnik[iq] && M[j].index_number > M[Tau[0].f].index_number)
+					{
+						M[j].index_number--;
+						int asdf = 1;
+					}
+				}
+
+				if (M[j].index != 467)
+				{
+					for (int k = 0; k < M[j].bind_shift_number.size(); k++)
+					{
+						if (M[j].bind_shift_number[k] > Tau[0].f)
+						{
+							M[j].bind_shift_number[k]--;
+						}
+					}
+
+					for (int k = 0; k < M[j].PT_migr.size(); k++)
+					{
+						for (int z = 0; z < M[j].PT_migr[k].bind_shift_number.size(); z++)
+						{
+							if (M[j].PT_migr[k].bind_shift_number[z] > Tau[0].f)
+							{
+								M[j].PT_migr[k].bind_shift_number[z]--;
+							}
+
+							if (M[j].PT_migr[k].bind_shift_number[z] == Tau[0].f)
+							{
+								M[j].PT_migr[k].bind_shift_number.erase(M[j].PT_migr[k].bind_shift_number.begin() + z);
+								M[j].PT_migr[k].bind_number.erase(M[j].PT_migr[k].bind_number.begin() + z);
+								z--;
+							}
+						}
+
+						for (int z = 0; z < M[j].PT_migr[k].torn_bind_shift_number.size(); z++)
+						{
+							if (M[j].PT_migr[k].torn_bind_shift_number[z] > Tau[0].f)
+							{
+								M[j].PT_migr[k].torn_bind_shift_number[z]--;
+							}
+
+							if (M[j].PT_migr[k].torn_bind_shift_number[z] == Tau[0].f)
+							{
+								M[j].PT_migr[k].torn_bind_shift_number.erase(M[j].PT_migr[k].torn_bind_shift_number.begin() + z);
+								M[j].PT_migr[k].torn_bind_number.erase(M[j].PT_migr[k].torn_bind_number.begin() + z);
+								z--;
+							}
+						}
+
+						for (int z = 0; z < M[j].PT_migr[k].build_bind_shift_number.size(); z++)
+						{
+							if (M[j].PT_migr[k].build_bind_shift_number[z] > Tau[0].f)
+							{
+								M[j].PT_migr[k].build_bind_shift_number[z]--;
+							}
+
+							if (M[j].PT_migr[k].build_bind_shift_number[z] == Tau[0].f)
+							{
+								M[j].PT_migr[k].build_bind_shift_number.erase(M[j].PT_migr[k].build_bind_shift_number.begin() + z);
+								M[j].PT_migr[k].build_bind_number.erase(M[j].PT_migr[k].build_bind_number.begin() + z);
+								z--;
+							}
+						}
+
+						for (int z = 0; z < M[j].PT_migr[k].save_bind_shift_number.size(); z++)
+						{
+							if (M[j].PT_migr[k].save_bind_shift_number[z] > Tau[0].f)
+							{
+								M[j].PT_migr[k].save_bind_shift_number[z]--;
+							}
+
+							if (M[j].PT_migr[k].save_bind_shift_number[z] == Tau[0].f)
+							{
+								M[j].PT_migr[k].save_bind_shift_number.erase(M[j].PT_migr[k].save_bind_shift_number.begin() + z);
+								M[j].PT_migr[k].save_bind_number.erase(M[j].PT_migr[k].save_bind_number.begin() + z);
+								z--;
+							}
+						}
+					}
+				}
+			}
+
+			for (int i = 0; i < k.size(); i++)
+			{ 				
+				M[k[i]].k_des = Nu * exp((M[k[i]].potential_centr / kB) / T);
+				M[k[i]].k_des = Nu * exp(-first_variant[M[k[i]].index].E_bind  * M[k[i]].bind_shift_number.size() / T); // надо просуммировать (это от фонар€, необходимо разобратс€)
+				M[k[i]].k_des = M[k[i]].k_des * M[k[i]].bind_shift_number.size();
+			}
+			k.clear();
+
+			vector<Molekula> M_oblast(0);
+			oblast(M, M[Tau[0].f], M_oblast);
+			Molekula MF;
+			MF = M[Tau[0].f];
+
+			d++; // увеличение счЄтчика уничтоженых молекул
+			first_variant[first_variant_r[nu].isxodnik[iq]].d++;
+			dekart.coordinate_grid_filling[M[Tau[0].f].x+centr][M[Tau[0].f].y+centr][M[Tau[0].f].z+centr]=0;
+			first_variant[first_variant_r[nu].isxodnik[iq]].number.erase(first_variant[first_variant_r[nu].isxodnik[iq]].number.begin() + (M[Tau[0].f].index_number));
+			first_variant[first_variant_r[nu].isxodnik[iq]].shift_number.erase(first_variant[first_variant_r[nu].isxodnik[iq]].shift_number.begin() + (M[Tau[0].f].index_number));
+			first_variant[first_variant_r[nu].isxodnik[iq]].shift_iterator.erase(first_variant[first_variant_r[nu].isxodnik[iq]].shift_iterator.begin() + (M[Tau[0].f].index_number));
+
+			M.erase(M.begin() + Tau[0].f);
+			first_variant[first_variant_r[nu].isxodnik[iq]].number.erase(first_variant[first_variant_r[nu].isxodnik[iq]].number.begin());
+			first_variant[665].quantiti++;
+
+
+			for (int j = 0; j < M_oblast.size(); j++) // пересчЄт точек миграции
+			{
+				if(M_oblast[j].index != 467)
+				{
+					migration(first_variant, M, M_oblast[j]);
+					M[M_oblast[j].shift_number] = M_oblast[j];
+				}
+			}
+
+			double r_u;
+
+			for (int j = 0; j < M_oblast.size(); j++) // пересчЄт точек миграции
+			{
+				if (M_oblast[j].index != 467)
+				{
+
+					for (int k = 0; k < M_oblast[j].PT_migr.size(); k++)
+					{
+
+						for (int z = 0; z < M_oblast[j].PT_migr[k].bind_shift_number.size(); z++)
+						{
+
+							if (M_oblast[j].PT_migr[k].bind_shift_number[z] == Tau[0].f)
+							{
+								M_oblast[j].PT_migr[k].bind_shift_number.erase(M_oblast[j].PT_migr[k].bind_shift_number.begin() + z);
+								M_oblast[j].PT_migr[k].bind_number.erase(M_oblast[j].PT_migr[k].bind_number.begin() + z);
+								z--;
+							}
+						}
+
+						for (int z = 0; z < M_oblast[j].PT_migr[k].torn_bind_shift_number.size(); z++)
+						{
+
+							if (M_oblast[j].PT_migr[k].torn_bind_shift_number[z] == Tau[0].f)
+							{
+								M_oblast[j].PT_migr[k].torn_bind_shift_number.erase(M_oblast[j].PT_migr[k].torn_bind_shift_number.begin() + z);
+								M_oblast[j].PT_migr[k].torn_bind_number.erase(M_oblast[j].PT_migr[k].torn_bind_number.begin() + z);
+								z--;
+							}
+						}
+
+						for (int z = 0; z < M_oblast[j].PT_migr[k].build_bind_shift_number.size(); z++)
+						{
+
+							if (M_oblast[j].PT_migr[k].build_bind_shift_number[z] == Tau[0].f)
+							{
+								M_oblast[j].PT_migr[k].build_bind_shift_number.erase(M_oblast[j].PT_migr[k].build_bind_shift_number.begin() + z);
+								M_oblast[j].PT_migr[k].build_bind_number.erase(M_oblast[j].PT_migr[k].build_bind_number.begin() + z);
+								z--;
+							}
+						}
+
+						for (int z = 0; z < M_oblast[j].PT_migr[k].save_bind_shift_number.size(); z++)
+						{
+							if (M_oblast[j].PT_migr[k].save_bind_shift_number[z] == Tau[0].f)
+							{
+								M_oblast[j].PT_migr[k].save_bind_shift_number.erase(M_oblast[j].PT_migr[k].save_bind_shift_number.begin() + z);
+								M_oblast[j].PT_migr[k].save_bind_number.erase(M_oblast[j].PT_migr[k].save_bind_number.begin() + z);
+								z--;
+							}
+						}
+
+						if (pow((pow((M_oblast[j].PT_migr[k].P_migr.x - MF.x), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.y - MF.y), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.z - MF.z), 2.0)), 1 / 2.0) <= 2.5 * sigm_MAX)
+						{
+							r_u = pow((pow((M_oblast[j].PT_migr[k].P_migr.x - MF.x), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.y - MF.y), 2.0) + pow((M_oblast[j].PT_migr[k].P_migr.z - MF.z), 2.0)), 1 / 2.0);
+							M_oblast[j].PT_migr[k].P_migr.U = M_oblast[j].PT_migr[k].P_migr.U - 4 * pow(M_oblast[j].eps * MF.eps, 1 / 2.0) * (pow((M_oblast[j].sigm + MF.sigm) / 2.0 / r_u, 12) - pow((M_oblast[j].sigm + MF.sigm) / 2.0 / r_u, 6));
+						}
+					}
+					M[M_oblast[j].shift_number] = M_oblast[j];
+				}
+			}
+
+		}
+	}
+stop:
+	t = t + tau;
+	n++;
+stop_m:;
+//	migr_error++;
+}
+
+
+void clean_repeat(Molekula MmM, ofstream &fout, string File_name)
+{ 
+	ifstream P_U_fin;
+	vector<double> P_K;
+	vector<int> P_K_counter;
+	double PP_K;
+	
+	P_U_fin.open(File_name);
+	
+
+	while (!P_U_fin.eof())
+	{
+		P_U_fin >> PP_K;
+		P_K.push_back(PP_K);
+	}
+
+	P_U_fin.clear();
+	P_U_fin.close();
+
+	for (int i = 0; i < MmM.PT_migr_repeat.size(); i++)
+	{
+		P_K_counter.push_back(0);
+	}
+
+	fout.open(File_name, ios_base::trunc);
+	bool P_K_del = false;
+
+	for (int i = 0; i < P_K.size(); i++)
+	{
+		P_K_del = false;
+		for (int j = 0; j < MmM.PT_migr_repeat.size(); j++)
+		{
+			double AU = round((MmM.PT_migr_repeat[j].P_migr_P.U / kB) * 100) / 100, PU = round(P_K[i] * 100) / 100;
+//			if (round((MmM.PT_migr_repeat[j].P_migr_P.U / kB) * 100) / 100 >= (round(P_K[i] * 100) / 100 - 0.01) && round((MmM.PT_migr_repeat[j].P_migr.U / kB) * 100) / 100 <= (round(P_K[i] * 100) / 100 + 0.01) && P_K_counter[j] < MmM.PT_migr_repeat[j].repeat_number)
+			if (AU >= (PU - 0.01) && AU <= (PU + 0.01) && P_K_counter[j] < MmM.PT_migr_repeat[j].repeat_number)
+			{
+				P_K_counter[j]++;
+				P_K_del = true;
+				continue;
+			}
+		}
+		if (P_K_del == false)
+		{
+			fout << P_K[i] << endl;
+		}		
+	}
+
+	fout.clear();
+	fout.close();
+	P_K.clear();
+}
+
+
+
+void Holes_record(double r, double fi, double teta, double P_U0)
+{
+	Point_migration H;
+	H.P_migr.r = r;
+	H.P_migr.fi = fi;
+	H.P_migr.teta = teta;
+	H.P_migr.newx();
+	H.P_migr.newy();
+	H.P_migr.newz();
+	H.P_migr.U = P_U0;
+
+	bool PT_repeat = false;
+	for (int i = 0; i < Holes.size(); i++)
+	{
+		if (H == Holes[i])
+		{
+			PT_repeat = true;
+			Holes[i].repeat_number++;
+			break;
+		}
+	}
+	if (PT_repeat == false)
+	{
+		Holes.push_back(H);
+		Holes[Holes.size() - 1].repeat_number++;
+		P_out.open(P_K, ios_base::app);
+		P_out << P_U0 / kB << endl;
+		P_out.clear();
+		P_out.close();
+	}
+}
+/*
+template <typename T> int sgn(T type) {
+if (static_cast<int>(type) < 0)
+return -1;
+else
+if (static_cast<int>(type) == 0)
+return 0;
+else
+return 1;
+}
+*/
+/*
+void proekcia(double x1, double x2, double x3, int x, int y, int z) //находит проекцию точки на плоскость
+{
+	double a1, b1, a2, b2, c1, c2, d1, d2, a3, b3, c3, d3;
+	double delt, delt_x, delt_y, delt_z, xp, yp, zp;
+	a1 = x2;
+	b1 = x1;
+	c1 = 0;
+	d1 = x2 * x - x1 * y;
+	a2 = x3;
+	b2 = 0;
+	c2 = x1;
+	d2 = x3 * x - x1 * z;
+	a3 = x1;
+	b3 = x2;
+	c3 = x3;
+	d3 = 0;
+	delt = a1 * b2 * c3 + b1 * c2 * a3 + c1 * a2 * b3 - c1 * b2 * a3 - b1 * a2 * c3 - a1 * c2 * b3;
+	delt_x = d1 * b2 * c3 + b1 * c2 * d3 + c1 * d2 * b3 - c1 * b2 * d3 - b1 * d2 * c3 - d1 * c2 * b3;
+	delt_y = a1 * d2 * c3 + d1 * c2 * a3 + c1 * a2 * d3 - c1 * d2 * a3 - d1 * a2 * c3 - a1 * c2 * d3;
+	delt_z = a1 * b2 * d3 + b1 * d2 * a3 + d1 * a2 * b3 - d1 * b2 * a3 - b1 * a2 * d3 - a1 * d2 * b3;
+	xp = delt_x / delt;
+	yp = delt_y / delt;
+	zp = delt_z / delt;
+
+}
+*/

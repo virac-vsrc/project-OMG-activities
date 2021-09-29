@@ -1,0 +1,30 @@
+#include "stdafx.h"
+#include <string>
+#include <math.h>
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include <istream>
+//#include "Variaty_of_reaction.h"
+//#include "Variety_of_molecules.h"
+using namespace std;
+
+double step1(int X[], Variaty_of_reaction first_variant_r[], Variety_of_molecules first_variant[]); 
+
+
+double step1(int X[], Variaty_of_reaction first_variant_r[], Variety_of_molecules first_variant[])
+{
+	int x1, x2, i, j;
+	double h[5659], a0=0;
+	ifstream isxin;
+	isxin.open("isx.txt");
+
+	for(i=1;i<5659;i++)
+	{
+		isxin >> j >> x1 >> x2;
+		h[i]=first_variant[x1].quantiti*first_variant[x2].quantiti;
+		first_variant_r[i].a=first_variant_r[i].c*h[i];
+		a0+=first_variant_r[i].a;
+	}
+	return a0;
+}

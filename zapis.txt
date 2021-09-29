@@ -1,0 +1,184 @@
+#include "stdafx.h"
+#include <vector>
+#include "Variety_of_molecules.h"
+//#include "Molekula.h"
+using namespace std;
+using namespace D;
+
+void zapis(Variety_of_molecules first_variant[], vector<Molekula>  &M, double r, double fi, double teta, int p, int nu, double r_p, double fi_p, double teta_p, double x_p, double y_p, double z_p, double P_U0);
+
+
+void zapis(Variety_of_molecules first_variant[], vector<Molekula>  &M, double r, double fi, double teta, int p, int nu, double r_p, double fi_p, double teta_p, double x_p, double y_p, double z_p, double P_U0)
+{
+	Molekula MM;
+	int q, w, e;
+	dekart.coordinate_grid_filling[i][j][k]=1;
+	if (first_variant[p].charge == 1)
+	{
+		G_charge++;
+	}
+
+	M.push_back(MM); 
+	f++; 
+	// запись координат в объект
+	M[M.size() - 1].r = r;
+	M[M.size() - 1].fi = fi;
+	M[M.size() - 1].teta = teta;
+	// расчёт декартовых координат
+	M[M.size() - 1].x = M[M.size() - 1].newx(r, fi, teta);
+	M[M.size() - 1].y = M[M.size() - 1].newy(r, fi, teta);
+	M[M.size() - 1].z = M[M.size() - 1].newz(r, fi, teta);
+
+	M[M.size() - 1].r_p = r_p;
+	M[M.size() - 1].fi_p = fi_p;
+	M[M.size() - 1].teta_p = teta_p;
+	M[M.size() - 1].x_p = x_p;
+	M[M.size() - 1].y_p = y_p;
+	M[M.size() - 1].z_p = z_p;
+	M[M.size() - 1].R_pa = pow(pow(x_p, 2.0) + pow(y_p, 2.0) + pow(z_p, 2.0), 1 / 2.0);
+	M[M.size() - 1].R_p = pow(pow(x_p - M[M.size() - 1].x, 2.0) + pow(y_p - M[M.size() - 1].y, 2.0) + pow(z_p - M[M.size() - 1].z, 2.0), 1 / 2.0);
+	M[M.size() - 1].potential_centr = P_U0;
+
+
+	if (p != 467)
+	{
+//		P_U_out.open(Poten_K, ios_base::app);
+//		P_U_out << M[M.size() - 1].potential_centr / kB << endl;
+
+
+		if (abs(P_U0 / kB) > 1000000 || (abs(P_U0 / kB) > 0 && abs(P_U0 / kB) < 0.0001))
+		{
+			cout << "Warning" << endl;
+		}
+
+		first_variant[p].f++;
+		first_variant[p].R_p_f = first_variant[p].R_p_f + M[M.size() - 1].R_p;
+		first_variant[p].R_f_average = first_variant[p].R_f_average + M[M.size() - 1].r;
+		first_variant[p].R_p_f_average = first_variant[p].R_p_f_average + M[M.size() - 1].R_pa;
+
+		if (int(M[M.size() - 1].R_p * 5 < 25))
+		{
+			first_variant[p].X[int(M[M.size() - 1].R_p * 5)]++;
+		}
+		else
+		{
+			first_variant[p].X[25]++;
+		}
+
+
+		if (M[M.size() - 1].index == 467)
+		{
+			return;
+		}
+
+		if (M[M.size() - 1].index != 467)
+		{
+			if (int(M[M.size() - 1].R_p * 5 < 25))
+			{
+				X[int(M[M.size() - 1].R_p * 5)]++;
+			}
+			else
+			{
+				X[25]++;
+			}
+		}
+
+		//	double afffff, bfffff = 999999999;
+
+		double q;
+		vector<int> k(1);
+		k[0] = M.size() - 1;
+		for (int j = 1; j < M.size() - 1; j++)
+		{
+
+			//		afffff = pow((pow((M[M.size() - 1].x - M[j].x), 2.0) + pow((M[M.size() - 1].y - M[j].y), 2.0) + pow((M[M.size() - 1].z - M[j].z), 2.0)), 1 / 2.0);
+			//		if(afffff < bfffff)
+			//		{
+			//			bfffff = afffff;
+			//		}
+			q = first_variant[M[j].index].k_des + M[M[f].shift_iterator].eps;
+			if (pow((pow((M[M.size() - 1].x - M[j].x), 2.0) + pow((M[M.size() - 1].y - M[j].y), 2.0) + pow((M[M.size() - 1].z - M[j].z), 2.0)), 1 / 2.0) <= q)
+			{
+				M[j].n_bind++;
+				M[M.size() - 1].n_bind++;
+				k.push_back(0);
+				k[k.size() - 1] = j;
+				M[j].bind_number.push_back(M[M.size() - 1].number);
+				M[M.size() - 1].bind_number.push_back(M[j].number);
+				M[j].bind_shift_number.push_back(M[M.size() - 1].shift_number);
+				M[M.size() - 1].bind_shift_number.push_back(M[j].shift_number);
+			}
+		}
+
+		for (int i = 0; i < k.size(); i++)
+		{
+			M[k[i]].k_des = Nu * exp((M[k[i]].potential_centr / kB) / T);
+			//		M[k[i]].k_des = Nu * exp(-first_variant[M[k[i]].index].E_bind * M[k[i]].bind_shift_number.size() / T);
+			//		M[k[i]].k_des = M[k[i]].k_des * M[k[i]].bind_shift_number.size();
+			//		int asdfd = 0;
+		}
+		k.clear();
+
+		migration(first_variant, M, M[M.size() - 1]);
+
+		P_m_size.open(PMZ, ios_base::app);
+		P_m_size << M[M.size() - 1].potential_centr / kB << "\t" << M[M.size() - 1].PT_migr.size() << endl;
+
+//		P_U_out.clear();
+//		P_U_out.close();
+		P_m_size.clear();
+		P_m_size.close();
+
+	}
+	if (i == 0 && j == 0 && k == 0)
+	{
+		M[M.size() - 1].x = 0;
+		M[M.size() - 1].y = 0;
+		M[M.size() - 1].z = 0;
+	}
+
+	//	q=float(M[f].x);
+	//	w=float(M[f].y);
+	//	e=float(M[f].z);
+	//	picture(dekart, first_variant, M, dekart.centr, f); // функция генерирует файл по которому строится графическое изображение
+}
+
+/*
+if (first_variant[p].R_p != 0)
+{
+	first_variant[p].R_p = (first_variant[p].R_p + pow(pow(x_p - M[M.size() - 1].x, 2.0) + pow(y_p - M[M.size() - 1].y, 2.0) + pow(z_p - M[M.size() - 1].z, 2.0), 1 / 2.0)) / 2.0;
+	first_variant[p].R_average = (first_variant[p].R_average + pow(pow(M[M.size() - 1].x, 2.0) + pow(M[M.size() - 1].y, 2.0) + pow(M[M.size() - 1].z, 2.0), 1 / 2.0)) / 2.0;
+	first_variant[p].R_p_average = (first_variant[p].R_p_average + pow(pow(x_p, 2.0) + pow(y_p, 2.0) + pow(z_p, 2.0), 1 / 2.0)) / 2.0;
+
+
+}
+else
+{
+	first_variant[p].R_p = pow(pow(x_p - M[M.size() - 1].x, 2.0) + pow(y_p - M[M.size() - 1].y, 2.0) + pow(z_p - M[M.size() - 1].z, 2.0), 1 / 2.0);
+	first_variant[p].R_average = pow(pow(M[M.size() - 1].x, 2.0) + pow(M[M.size() - 1].y, 2.0) + pow(M[M.size() - 1].z, 2.0), 1 / 2.0);
+	first_variant[p].R_p_average = pow(pow(x_p, 2.0) + pow(y_p, 2.0) + pow(z_p, 2.0), 1 / 2.0);
+}
+*/
+/*
+double q;
+vector<int> k(1);
+k[0] = M.size() - 1;
+for (int j = 0; j < M.size() - 1; j++)
+{
+	//		q = pow(2, 1 / 6.0) * sigm_MAX;
+	q = M[M.size() - 1].radius + M[j].radius + first_variant[562].radius / 5.0;
+	if (pow((pow((M[M.size() - 1].x - M[j].x), 2.0) + pow((M[M.size() - 1].y - M[j].y), 2.0) + pow((M[M.size() - 1].z - M[j].z), 2.0)), 1 / 2.0) <= q)
+	{
+		M[j].n_bind++;
+		M[M.size() - 1].n_bind++;
+		k.push_back(0);
+		k[k.size() - 1] = j;
+	}
+}
+
+for (int i = 0; i < k.size(); i++)
+{
+	M[k[i]].k_des = Nu * exp(-first_variant[M[k[i]].index].E_bind * M[i].n_bind / T);
+}
+k.clear();
+*/

@@ -1,0 +1,9 @@
+#include "stdafx.h"
+#include <vector>
+using namespace std;
+namespace D
+{
+	double Pp[26] = { NULL };
+	int X[26] = { NULL };
+	vector<int> O(0);
+}

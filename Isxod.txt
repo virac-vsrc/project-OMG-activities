@@ -1,0 +1,514 @@
+#include "stdafx.h"
+#include <string>
+#include <math.h>
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include <istream>
+using namespace std;
+using namespace D;
+
+void isxod(Variety_of_molecules *first_variant, Variaty_of_reaction *first_variant_r);
+
+Variety_of_molecules *first_variant;
+Variaty_of_reaction *first_variant_r;
+
+void isxod(Variety_of_molecules first_variant[], Variaty_of_reaction first_variant_r[])
+{
+	int i;// , FV, FVR;
+	char f[11];
+	string bm[2];
+	string fs;
+	streamsize D=11, DD=2;
+
+	cout << "Input temperature:" << endl;
+	cin >> :: T;// Температура временно здесь
+	::T_d = ::T;
+
+	cout << "Input density:" << endl;
+	cin >> ::density;// плотность тоже
+
+	cout << "Sphere (input 0) or plane_square (input 1)" << endl;
+	cin >> ::sp_or_sq; // сфера или подложка
+
+	if (sp_or_sq == 0)
+	{
+		cout << "Input size radius core:" << endl;
+		cin >> ::N_core; // размер ядра
+
+		cout << "Input N atoms amorf core:" << endl;
+		cin >> ::N_atoms_amorf_core;// Число амотов аморфного ядра
+	}
+	else
+	{
+		cout << "Input size side_square:" << endl;
+		cin >> ::side_square; // размер ядра
+	}
+	
+	cout << "Type regular struct: standart - input 0, graphit - input 1" << endl;
+	cin >> ::regular_struct_type; // сфера или подложка
+	
+
+//	cout << "Input (Nr) minimum step potencial search:" << endl;
+//	cin >> ::Nr;// Минимальное число шагов для поиска
+
+//	cout << "Input (dr) initial step:" << endl;
+//	cin >> ::dr;// Начальный шаг
+
+	cout << "Input (delta) precision:" << endl;
+	cin >> ::delta;// Начальный шаг
+
+	cout << "Include electrostatic energy? on(1) or of(0):" << endl;
+	cin >> ::electrostatic_energy_on;
+
+	bm[0] = "bm11.txt";
+	bm[1] = "bm11.1.txt";
+
+	ifstream fin;
+//	ofstream fout;
+
+//	cout << "Input 0(450) or 1(100)" << endl;
+	int b = 0;
+//	cin >> b;
+
+	fin.open(bm[b]);
+
+	fin >> FV;
+	::first_variant=new Variety_of_molecules [FV];
+
+	::first_variant[0].name="";
+	::first_variant[0].index=0;
+
+	for (i=1;i<FV;i++)
+	{
+		fin >> ::first_variant[i].name;
+		::first_variant[i].index=i;
+	}
+
+	fin >> FVR;
+	::first_variant_r=new Variaty_of_reaction [FVR];
+
+	int Nax;
+	for (i=1;i<FVR;i++)
+	{
+		fin >> Nax;
+		::first_variant_r[i].index=i;
+		fin.getline(f, DD);
+		fin.clear();
+		for (int k=0;k<2;k++)
+		{
+			fin.getline(f, D);
+			fin.clear();
+			for(int jj=0;jj<10; jj++)
+			{
+				if(f[jj]!=' ')
+				{
+					fs.push_back(f[jj]);
+				}
+			}
+			for (int j=0;j<FV;j++)
+			{
+//				strcpy(ff, first_variant[j].name.c_str());
+				if (fs==::first_variant[j].name)
+				{
+					::first_variant_r[i].isxodnik[k]=::first_variant[j].index;
+				}
+			}
+//			for(int ii=0;ii<10;ii++){ff[ii]=0;}
+			fs="";
+		}
+
+		fin.getline(f, D);
+		fin.clear();
+		for (int k=0;k<5;k++)
+		{
+			fin.getline(f, D);
+			fin.clear();
+			for(int jj=0;jj<10; jj++)
+			{
+				if(f[jj]!=' ')
+				{
+					fs.push_back(f[jj]);
+				}
+			}
+			for (int j=0;j<FV;j++)
+			{
+				if (fs==::first_variant[j].name)
+				{
+					::first_variant_r[i].prdoduct[k]=::first_variant[j].index;
+				}
+			}
+			fs="";
+//			for(int ii=0;ii<10;i++){ff[ii]=0;}
+		}
+		fin >> ::first_variant_r[i].c;
+		fin >> ::first_variant_r[i].b;
+		fin >> ::first_variant_r[i].E;
+	}
+	fin.clear();
+	fin.close();
+
+	::first_variant[4].concentration_in_gas = 1;
+	::first_variant[4].radius = 1.2;
+	::first_variant[4].mass = m_H;
+	::first_variant[4].v = ::first_variant[4].speed(::first_variant[4].mass);
+	::first_variant[4].o = 1;
+	::first_variant[9].concentration_in_gas = 0;
+	::first_variant[9].radius = 1.52;
+	::first_variant[9].mass = m_O;
+	::first_variant[9].v = ::first_variant[9].speed(::first_variant[9].mass);
+	::first_variant[9].o = 1;
+	::first_variant[7].concentration_in_gas = 0;
+	::first_variant[7].radius = 1.55;
+	::first_variant[7].mass = m_N;
+	::first_variant[7].v = ::first_variant[7].speed(::first_variant[7].mass);
+	::first_variant[7].o = 1;
+	::first_variant[1].concentration_in_gas = 0;
+	::first_variant[1].radius = 1.7;
+	::first_variant[1].mass = m_C;
+	::first_variant[1].charge = 1;
+	::first_variant[1].v = ::first_variant[1].speed(::first_variant[1].mass);
+	::first_variant[1].o = 1;
+	::first_variant[11].concentration_in_gas = 0;
+	::first_variant[11].radius = 0.88;
+	::first_variant[11].mass = m_S;
+	::first_variant[11].charge = 1;
+	::first_variant[11].v = ::first_variant[11].speed(::first_variant[11].mass);
+	::first_variant[11].o = 1;
+	::first_variant[12].concentration_in_gas = 0;
+	::first_variant[12].radius = 1.11;
+	::first_variant[12].mass = m_Si;
+	::first_variant[12].charge = 1;
+	::first_variant[12].v = ::first_variant[12].speed(::first_variant[12].mass);
+	::first_variant[12].o = 1;
+	::first_variant[3].concentration_in_gas = 0;
+	::first_variant[3].radius = 1.56;
+	::first_variant[3].mass = m_Fe;
+	::first_variant[3].charge = 1;
+	::first_variant[3].v = ::first_variant[3].speed(::first_variant[3].mass);
+	::first_variant[3].o = 1;
+	::first_variant[8].concentration_in_gas = 0;
+	::first_variant[8].radius = 1.9;
+	::first_variant[8].mass = m_Na;
+	::first_variant[8].charge = 1;
+	::first_variant[8].v = ::first_variant[8].speed(::first_variant[8].mass);
+	::first_variant[8].o = 1;
+	::first_variant[6].concentration_in_gas = 0;
+	::first_variant[6].radius = 1.45;
+	::first_variant[6].mass = m_Mg;
+	::first_variant[6].charge = 1;
+	::first_variant[6].v = ::first_variant[6].speed(::first_variant[6].mass);
+	::first_variant[6].o = 1;
+	::first_variant[2].concentration_in_gas = 0;
+	::first_variant[2].radius = 0.79;
+	::first_variant[2].mass = m_Cl;
+	::first_variant[2].charge = 1;
+	::first_variant[2].v = ::first_variant[2].speed(::first_variant[2].mass);
+	::first_variant[2].o = 1;
+	::first_variant[10].concentration_in_gas = 0;
+	::first_variant[10].radius = 0.98;
+	::first_variant[10].mass = m_P;
+	::first_variant[10].charge = 1;
+	::first_variant[10].v = ::first_variant[10].speed(::first_variant[10].mass);
+	::first_variant[10].o = 1;
+/*
+	::first_variant[467].radius = 2.1;  // Si.sigm = 3.8, eps=12.30meV, eps=143K;
+	::first_variant[467].sigm = 3.8;
+	::first_variant[467].eps = 143.0 * kB;
+	::first_variant[467].color = "Grey";
+	::first_variant[467].o = 1;
+*/
+	
+	::first_variant[467].radius = 1.7; //0.77;//1.7;  // Si.sigm = 3.8, eps=6.15;
+	::first_variant[467].sigm = 3.098; //3.8983; //3.098;
+	::first_variant[467].eps = 52.0 * kB; //47.85 * kB; //52.0 * kB;
+	::first_variant[467].color = "Grey";
+	::first_variant[467].o = 1;
+/*
+	cout << "Enter sigm and eps for atoms core" << endl;
+	cin >> ::first_variant[467].sigm
+		>> ::first_variant[467].eps;
+	::first_variant[467].eps = ::first_variant[467].eps * kB;
+*/
+	::first_variant[562].radius = 1.2; //0.53;	//1.2;
+	::first_variant[562].sigm = 2.12; //3.195; //2.12;
+	::first_variant[562].eps = 505.4 * kB;  //7.648 * kB; //505.4 * kB;
+	::first_variant[562].color = "Green";
+	::first_variant[562].mass = m_H;
+	::first_variant[562].o = 1;
+
+	/*
+	if (regular_struct_type==1)
+	{
+		::first_variant[467].radius = 0.77; //0.77;//1.7;  // Si.sigm = 3.8, eps=6.15;
+		::first_variant[467].sigm = 3.8983; //3.8983; //3.098;
+		::first_variant[467].eps = 47.85 * kB; //47.85 * kB; //52.0 * kB;
+		::first_variant[467].color = "Grey";
+		::first_variant[467].o = 1;
+
+		::first_variant[562].radius = 0.53; //0.53;	//1.2;
+		::first_variant[562].sigm = 3.195; //3.195; //2.12;
+		::first_variant[562].eps = 7.648 * kB;  //7.648 * kB; //505.4 * kB;
+		::first_variant[562].color = "Green";
+		::first_variant[562].mass = m_H;
+		::first_variant[562].o = 1;
+	}
+
+	*/
+	::first_variant[628].radius = 1.52;
+	::first_variant[628].sigm = 2.631;
+	::first_variant[628].eps = 295.6 * kB;
+	::first_variant[628].color = "Blue";
+	::first_variant[628].o = 1;
+
+	::first_variant[612].radius = 1.55;
+	::first_variant[612].sigm = 2.495;
+	::first_variant[612].eps = 419.0 * kB;
+	::first_variant[612].color = "Yellow";
+	::first_variant[612].o = 1;
+
+	::first_variant[468].radius = 1.7;
+	::first_variant[468].sigm = 3.098;
+	::first_variant[468].eps = 52.0 * kB;
+	::first_variant[468].color = "White";
+	::first_variant[468].charge = 1;
+	::first_variant[468].o = 1;
+
+	::first_variant[640].radius = 1.8;
+	::first_variant[640].sigm = 2.12;
+	::first_variant[640].eps = 505.4 * kB;
+	::first_variant[640].color = "Orange";
+	::first_variant[640].charge = 1;
+	::first_variant[640].o = 1;
+
+	::first_variant[642].radius = 2.1;
+	::first_variant[642].color = "Red";
+	::first_variant[642].charge = 1;
+	::first_variant[642].o = 1;
+
+	::first_variant[560].radius = 1.56;
+	::first_variant[560].color = "Brown";
+	::first_variant[560].charge = 1;
+	::first_variant[560].o = 1;
+
+	::first_variant[616].radius = 2.27;
+	::first_variant[616].sigm = 2.12;
+	::first_variant[616].eps = 505.4 * kB;
+	::first_variant[616].color = "Brown";
+	::first_variant[616].charge = 1;
+	::first_variant[616].o = 1;
+
+	::first_variant[609].radius = 1.73;
+	::first_variant[609].color = "Pink";
+	::first_variant[609].charge = 1;
+	::first_variant[609].o = 1;
+
+	::first_variant[553].radius = 1.75;
+	::first_variant[553].color = "Violet";
+	::first_variant[553].charge = 1;
+	::first_variant[553].o = 1;
+
+	::first_variant[635].radius = 1.8;
+	::first_variant[635].color = "Turquoise";
+	::first_variant[635].charge = 1;
+	::first_variant[635].o = 1;
+	//::first_variant[642].radius = 0.42;
+	//::first_variant[642].color = "Grey";
+
+	::first_variant[13].concentration_in_gas = 0;
+	::first_variant[13].radius = 0.42;
+	::first_variant[13].mass = m_F;
+	::first_variant[13].charge = 1;
+	::first_variant[13].v = ::first_variant[13].speed(::first_variant[13].mass);
+	::first_variant[13].o = 1;
+	::first_variant[5].concentration_in_gas = 0;
+	::first_variant[5].radius = 0.38;
+	::first_variant[5].mass = m_He;
+	::first_variant[5].v = ::first_variant[5].speed(::first_variant[5].mass);
+	::first_variant[5].o = 1;
+	::first_variant[28].concentration_in_gas = 0;
+	::first_variant[28].radius = 1.04;
+	::first_variant[28].mass = m_H2;
+	::first_variant[28].v = ::first_variant[13].speed(::first_variant[13].mass);
+	::first_variant[28].o = 1;
+
+	::first_variant[169].concentration_in_gas = 0;
+	::first_variant[169].radius = 0.00028;
+	::first_variant[169].mass = m_e;
+	::first_variant[169].v = ::first_variant[169].speed(::first_variant[169].mass);
+	::first_variant[169].o = 1;
+
+
+	::first_variant[600].radius = 0.38;
+	::first_variant[600].color = "Grey";
+	::first_variant[600].o = 1;
+
+	::first_variant[563].radius = 1.04;
+	::first_variant[563].color = "Grey";
+	::first_variant[563].o = 1;
+
+	double Sm = 0;
+	for (i = 0; i < FV; i++)
+	{
+		Sm = Sm + ::first_variant[i].concentration_in_gas;
+	}
+	for (i = 0; i < FV; i++)
+	{
+		if (::first_variant[i].concentration_in_gas != 0)
+		{
+			::first_variant[i].concentration_in_gas_r = ::first_variant[i].concentration_in_gas/Sm;
+		}
+	}
+	
+	char nameX[100];
+	for (int i = 0; i < FV; i++)
+	{
+		strcpy(nameX, ::first_variant[i].name.c_str());
+		if (nameX[0] == 'g' && ::first_variant[i].o == 1)
+		{
+			O.push_back(1);
+			for (int j = 0; j < 26; j++)
+			{
+				::first_variant[i].P[j] = 0;
+				::first_variant[i].X[j] = 0;
+			}
+		}
+
+	}
+/*
+	fout.open("test.txt");
+	for (i=1;i<FVR;i++)
+	{
+		fout << first_variant_r[i].index << "\t";
+		for (int k=0;k<2;k++)
+		{
+			fout << first_variant_r[i].isxodnik[k] << "\t";
+		}
+
+		for (int k=0;k<5;k++)
+		{
+			fout << first_variant_r[i].prdoduct[k] << "\t";
+		}
+
+		
+		fout << first_variant_r[i].c  << "\t" << first_variant_r[i].b << "\t" << first_variant_r[i].E << "\t" << endl;
+	}
+*/
+}
+
+
+
+/*
+::first_variant[4].concentration_in_gas = 0.001;
+::first_variant[4].radius = 0.52;
+::first_variant[4].mass = m_H;
+::first_variant[4].v = ::first_variant[4].speed(::first_variant[4].mass);
+::first_variant[9].concentration_in_gas = 0.000256;
+::first_variant[9].radius = 0.48;
+::first_variant[9].mass = m_O;
+::first_variant[9].v = ::first_variant[9].speed(::first_variant[9].mass);
+::first_variant[7].concentration_in_gas = 0.000076;
+::first_variant[7].radius = 0.56;
+::first_variant[7].mass = m_N;
+::first_variant[7].v = ::first_variant[7].speed(::first_variant[7].mass);
+::first_variant[1].concentration_in_gas = 0.00012;
+::first_variant[1].radius = 0.67;
+::first_variant[1].mass = m_C;
+::first_variant[1].charge = 1;
+::first_variant[1].v = ::first_variant[1].speed(::first_variant[1].mass);
+::first_variant[11].concentration_in_gas = 0.000015;
+::first_variant[11].radius = 0.88;
+::first_variant[11].mass = m_S;
+::first_variant[11].charge = 1;
+::first_variant[11].v = ::first_variant[11].speed(::first_variant[11].mass);
+::first_variant[12].concentration_in_gas = 0.0000017;
+::first_variant[12].radius = 1.11;
+::first_variant[12].mass = m_Si;
+::first_variant[12].charge = 1;
+::first_variant[12].v = ::first_variant[12].speed(::first_variant[12].mass);
+::first_variant[3].concentration_in_gas = 0.0000002;
+::first_variant[3].radius = 1.56;
+::first_variant[3].mass = m_Fe;
+::first_variant[3].charge = 1;
+::first_variant[3].v = ::first_variant[3].speed(::first_variant[3].mass);
+::first_variant[8].concentration_in_gas = 0.0000002;
+::first_variant[8].radius = 1.9;
+::first_variant[8].mass = m_Na;
+::first_variant[8].charge = 1;
+::first_variant[8].v = ::first_variant[8].speed(::first_variant[8].mass);
+::first_variant[6].concentration_in_gas = 0.0000024;
+::first_variant[6].radius = 1.45;
+::first_variant[6].mass = m_Mg;
+::first_variant[6].charge = 1;
+::first_variant[6].v = ::first_variant[6].speed(::first_variant[6].mass);
+::first_variant[2].concentration_in_gas = 0.00000018;
+::first_variant[2].radius = 0.79;
+::first_variant[2].mass = m_Cl;
+::first_variant[2].charge = 1;
+::first_variant[2].v = ::first_variant[2].speed(::first_variant[2].mass);
+::first_variant[10].concentration_in_gas = 0.000000117;
+::first_variant[10].radius = 0.98;
+::first_variant[10].mass = m_P;
+::first_variant[10].charge = 1;
+::first_variant[10].v = ::first_variant[10].speed(::first_variant[10].mass);
+
+::first_variant[467].radius = 0.67;
+::first_variant[467].color = "Grey";
+::first_variant[562].radius = 0.52;
+::first_variant[562].color = "Green";
+::first_variant[628].radius = 0.48;
+::first_variant[628].color = "Blue";
+::first_variant[612].radius = 0.56;
+::first_variant[612].color = "Yellow";
+::first_variant[468].radius = 0.67;
+::first_variant[468].color = "White";
+::first_variant[468].charge = 1;
+::first_variant[640].radius = 0.88;
+::first_variant[640].color = "Orange";
+::first_variant[640].charge = 1;
+::first_variant[642].radius = 1.11;
+::first_variant[642].color = "Red";
+::first_variant[642].charge = 1;
+::first_variant[560].radius = 1.56;
+::first_variant[560].color = "Brown";
+::first_variant[560].charge = 1;
+::first_variant[616].radius = 1.9;
+::first_variant[616].color = "Purple";
+::first_variant[616].charge = 1;
+::first_variant[609].radius = 1.45;
+::first_variant[609].color = "Pink";
+::first_variant[609].charge = 1;
+::first_variant[553].radius = 0.79;
+::first_variant[553].color = "Violet";
+::first_variant[553].charge = 1;
+::first_variant[635].radius = 0.98;
+::first_variant[635].color = "Turquoise";
+::first_variant[635].charge = 1;
+//::first_variant[642].radius = 0.42;
+//::first_variant[642].color = "Grey";
+
+::first_variant[13].concentration_in_gas = 0.000000018;
+::first_variant[13].radius = 0.42;
+::first_variant[13].mass = m_F;
+::first_variant[13].charge = 1;
+::first_variant[13].v = ::first_variant[13].speed(::first_variant[13].mass);
+::first_variant[5].concentration_in_gas = 0.09;
+::first_variant[5].radius = 0.38;
+::first_variant[5].mass = m_He;
+::first_variant[5].v = ::first_variant[5].speed(::first_variant[5].mass);
+::first_variant[28].concentration_in_gas = 0.4995;
+::first_variant[28].radius = 1.04;
+::first_variant[28].mass = m_H2;
+::first_variant[28].v = ::first_variant[13].speed(::first_variant[13].mass);
+
+::first_variant[169].concentration_in_gas = 0.000139815;
+::first_variant[169].radius = 0.00028;
+::first_variant[169].mass = m_e;
+::first_variant[169].v = ::first_variant[169].speed(::first_variant[169].mass);
+
+
+::first_variant[600].radius = 0.38;
+::first_variant[600].color = "Grey";
+::first_variant[563].radius = 1.04;
+::first_variant[563].color = "Grey";
+*/

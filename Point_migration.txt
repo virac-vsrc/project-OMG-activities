@@ -1,0 +1,35 @@
+#pragma once
+
+#include "stdafx.h"
+#include <math.h>
+using namespace std;
+
+class Point_migration
+{
+	public:
+		Point_migration()
+		{
+			k_migr = 0;
+			r_v = 0;
+			k_migr_t = 0;
+			repeat_number = 0;
+		}
+
+		~Point_migration()
+		{
+
+		}
+
+		double k_migr, r_v, k_migr_t, repeat_number;
+		vector<int> bind_number, torn_bind_number, bind_shift_number, torn_bind_shift_number, build_bind_number, build_bind_shift_number, save_bind_number, save_bind_shift_number;
+		Potential P_migr, P_migr_t, P_migr_tm, P_migr_P;
+
+		friend bool operator == (const Point_migration &a, const Point_migration &b);
+};
+
+bool operator == (const Point_migration &a, const Point_migration &b)
+{
+	return (a.P_migr == b.P_migr);
+}
+ 
+vector<Point_migration> Holes;

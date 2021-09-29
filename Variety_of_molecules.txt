@@ -1,0 +1,55 @@
+#include "stdafx.h"
+#include <string>
+#include <math.h>
+#include <vector>
+using namespace std;
+
+class Variety_of_molecules
+{
+	public:
+		Variety_of_molecules()
+		{
+			name="name";
+			index=0;
+			quantiti=0;
+			concentration_in_gas = 0;
+			concentration_in_gas_r = 0; //относительная концентрация
+			charge = 0;
+			concentration_in_dust = 0;
+			mass = 0;
+			radius = 0;
+			v = 0; // средняя тепловая скорость молекул
+			k_des = 0;
+			k_abs = 0;
+			sigm = 0;
+			eps = 0;
+			E_bind = 0;
+			R_p = 0;
+			R_average = 0;
+			R_p_average = 0;
+			R_p_f = 0;
+			R_f_average = 0;
+			R_p_f_average = 0;
+			o = 0;
+			f = 0;
+			d = 0;
+			energy_electrostatic_constant = 0;
+			color = "Grey";
+		}
+
+		~Variety_of_molecules(){}
+
+		double speed(double mass)
+		{
+			v = (pow((8 * kB*T) / (M_PI*mass), 1 / 2.0)); // средняя тепловая скорость молекул
+			return v;
+		}
+
+		bool o; // существование в системе
+		int index, quantiti, charge, f, X[26], d;
+		vector<int>  number, shift_iterator, shift_number;
+		string name, color;
+		double concentration_in_gas_r, concentration_in_gas, v, concentration_in_dust, mass, radius, k_des, k_abs, sigm, eps, E_bind, R_p, R_average, R_p_average, R_p_f, R_f_average, R_p_f_average, P[26], energy_electrostatic_constant;
+};
+
+// Variety_of_molecules first_variant[];

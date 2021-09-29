@@ -1,0 +1,62 @@
+#include "stdafx.h"
+#include <iostream>
+#define _USE_MATH_DEFINES
+#include <math.h>
+/*
+#include "Variaty_of_reaction.h"
+#include "Variety_of_molecules.h"
+#include "Physical_constants.h"
+*/
+using namespace std;
+
+void speed_calculation(double T, double T_d, double S_grain, Variety_of_molecules first_variant[], Variaty_of_reaction first_variant_r[]);
+void speed_calculation(double T, double T_d, double S_grain, Variety_of_molecules first_variant[], Variaty_of_reaction first_variant_r[])
+{
+	first_variant[4].concentration = pow(10.0, 4.0);
+	//	first_variant[5].concentration=(first_variant[4].concentration/100.0)*9;
+
+	double v, S_TTd;
+	T = 10;
+	T_d = 10;
+	v = (pow((8 * kB*T) / (M_PI*m_H), 1 / 2.0)); 
+	S_grain = M_PI * pow(pow(7.7, -8.0), 2.0); 
+	S_TTd = pow(1 + 4 * pow(10, -2.0)*pow(T + T_d, 1 / 2.0) + 2 * pow(10, -3.0)*T + 8 * pow(10, -6.0)*pow(T, 2.0), -1.0);
+
+	for (int i = 1; i < 5659; i++) 
+	{
+		/*		int j, jj;
+		//		prdin >> j;
+		//		isxin >> jj;
+		if(j!=jj) // проверка на адекватность
+		{
+		cout<< "Error"<< endl;
+		}
+
+		for(int pq=0;pq<4;pq++)
+		{
+		//			prdin >> first_variant_r[i].prdoduct[pq];
+		}
+
+		for(int pp=0;pp<2;pp++)
+		{
+		//			isxin >> first_variant_r[i].isxodnik[pp];
+		}
+
+
+
+		Cin >> first_variant_r[i].c;
+		Ein >> first_variant_r[i].E;
+		*/
+		// 5233 - 5392 desorb //  // 5038 - 5232 freeze //
+		if (first_variant_r[i].isxodnik[1] == 666) // скорость десорбции
+		{
+			first_variant_r[i].k_des = Nu * exp(-first_variant_r[i].E / T);
+		}
+
+		if (first_variant_r[i].isxodnik[1] == 665) // скорость абсорбции
+		{
+			first_variant_r[i].k_abs = first_variant[first_variant_r[i].isxodnik[0]].concentration * S_grain * v * S_TTd;
+			//			first_variant_r[i].k_abs = first_variant[i].concentration * (M_PI*pow(7.7,2.0)) * (pow((8*1.3806485279*pow(10,-23.0)*T)/(M_PI*1.674*pow(10,-27.0)),1/2.0)) * pow(1+4*pow(10,-2.0)*pow(T+T_d,1/2.0)+2*pow(10,-3.0)*T+8*pow(10,-6.0)*pow(T,2.0),-1.0) ;
+		}
+	}
+}

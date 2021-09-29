@@ -1,0 +1,24 @@
+#include "stdafx.h"
+#include <math.h>
+using namespace std;
+
+extern const double kB=1.38064852*pow(10,-16.0); // постоянная Больцмана
+extern const double h_plank = 6.626070040*pow(10, -27.0); // постоянная Планка    h_plank = 1.054571800*pow(10, -27.0); (приведённая)
+extern const double m_H = 1.00794*1.66057*pow(10,-24.0); // масса атома водорода
+extern const double m_O = 15.999*1.66057*pow(10, -24.0); // масса атома кислорода
+extern const double m_N = 14.0067*1.66057*pow(10, -24.0); // масса атома азота
+extern const double m_C = 12.011*1.66057*pow(10, -24.0); // масса атома углерода
+extern const double m_Na = 22.98977*1.66057*pow(10, -24.0); // масса атома натрия
+extern const double m_Fe = 55.84*1.66057*pow(10, -24.0); // масса атома железа
+extern const double m_Mg = 24.305*1.66057*pow(10, -24.0); // масса атома магния
+extern const double m_S = 32.06*1.66057*pow(10, -24.0); // масса атома серы
+extern const double m_Si = 28.085*1.66057*pow(10, -24.0); // масса атома кремния
+extern const double m_P = 30.97376*1.66057*pow(10, -24.0); // масса атома фосфора
+extern const double m_Cl = 35.453*1.66057*pow(10, -24.0); // масса атома хлора
+extern const double m_F = 18.998403*1.66057*pow(10, -24.0); // масса атома фтора
+extern const double m_He = 4.028*1.66057*pow(10, -24.0); // масса атома гелия
+extern const double m_H2 = m_H*2; // масса молекулы водорода
+extern const double m_e = 9.109534*pow(10, -28.0); // масса электрона
+extern const double Nu=pow(10.0,12.0); // из статьи, для десорбции
+
+extern const double sigm_MAX = 5;

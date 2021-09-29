@@ -1,0 +1,100 @@
+#include "stdafx.h"
+#include <math.h>
+using namespace std;
+
+class Potential
+{
+	public:
+		Potential()
+		{
+			U = 0;
+			r = 0;
+			fi = 0;
+			teta = 0;
+			x = 0;
+			y = 0;
+			z = 0;
+		}
+
+		~Potential()
+		{
+
+		}
+
+		void newteta(double x, double y, double z)
+		{
+			teta = acos(z / pow((pow(x, 2.0) + pow(y, 2.0) + pow(z, 2.0)), 1 / 2.0));
+		}
+
+		void newfi(double x, double y, double z)
+		{
+			fi = atan2(y, x);
+		}
+
+		void newr(double x, double y, double z)
+		{
+			r = pow((pow(x, 2.0) + pow(y, 2.0) + pow(z, 2.0)), 1 / 2.0);
+		}
+
+		void newx(double r, double fi, double teta)
+		{
+			x = r * sin(teta)*cos(fi);
+		}
+
+		void newy(double r, double fi, double teta)
+		{
+			y = r * sin(teta)*sin(fi);
+		}
+
+		void newz(double r, double fi, double teta)
+		{
+			z = r * cos(teta);
+		}
+
+		void newteta()
+		{
+			teta = acos(z / pow((pow(x, 2.0) + pow(y, 2.0) + pow(z, 2.0)), 1 / 2.0));
+		}
+
+		void newfi()
+		{
+			fi = atan2(y, x);
+		}
+
+		void newr()
+		{
+			r = pow((pow(x, 2.0) + pow(y, 2.0) + pow(z, 2.0)), 1 / 2.0);
+		}
+
+		void newx()
+		{
+			x = r * sin(teta)*cos(fi);
+		}
+
+		void newy()
+		{
+			y = r * sin(teta)*sin(fi);
+		}
+
+		void newz()
+		{
+			z = r * cos(teta);
+		}
+
+		double U, r, fi, teta, x, y, z;
+
+		friend bool operator == (const Potential& a, const Potential& b);
+};
+
+bool operator == (const Potential& a, const Potential& b)
+{
+	return ((pow(a.x - b.x, 2.0) + pow(a.y - b.y, 2.0) + pow(a.z - b.z, 2.0) <= pow(2.12, 2.0)) && a.U <= b.U + 10 * delta * kB && a.U >= b.U - 10 * delta * kB);
+}
+
+struct sort_class_Potential
+{
+	bool operator() (Potential i, Potential j)
+	{
+		return (i.U < j.U);
+	}
+} sort_potential;
